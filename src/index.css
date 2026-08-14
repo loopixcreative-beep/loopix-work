@@ -1,0 +1,227 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 220 9% 12%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 220 9% 12%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 9% 12%;
+
+    --primary: 217 73% 47%;
+    --primary-foreground: 0 0% 98%;
+
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 220 9% 15%;
+
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 9% 46%;
+
+    --accent: 217 73% 94%;
+    --accent-foreground: 217 73% 20%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 98%;
+
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 98%;
+
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 217 73% 47%;
+
+    --radius: 0.75rem;
+
+    /* Kaam-specific colors */
+    --kaam-blue: 217 73% 47%;
+    --kaam-blue-light: 217 73% 94%;
+    --kaam-slate: 220 9% 46%;
+    --kaam-slate-light: 220 14% 96%;
+    
+    /* Priority colors */
+    --priority-highest: 0 84% 60%;
+    --priority-high: 25 95% 53%;
+    --priority-medium: 38 92% 50%;
+    --priority-low: 82 85% 47%;
+    --priority-lowest: 142 76% 36%;
+
+    /* Status colors */
+    --status-todo: 220 9% 46%;
+    --status-progress: 217 73% 47%;
+    --status-review: 38 92% 50%;
+    --status-done: 142 76% 36%;
+
+    /* Brand orange (secondary theme colour) */
+    --brand-orange: 24 94% 52%;
+    --brand-orange-light: 28 100% 95%;
+    --brand-orange-foreground: 0 0% 100%;
+
+    /* Chart palette — blue → orange */
+    --chart-1: 217 73% 47%;
+    --chart-2: 24 94% 52%;
+    --chart-3: 199 89% 48%;
+    --chart-4: 38 92% 50%;
+    --chart-5: 262 62% 55%;
+    --chart-6: 142 71% 40%;
+
+    /* Gradients & shadows */
+    --gradient-blue: linear-gradient(135deg, hsl(217 73% 47%), hsl(199 89% 55%));
+    --gradient-orange: linear-gradient(135deg, hsl(24 94% 52%), hsl(38 92% 55%));
+    --gradient-brand: linear-gradient(135deg, hsl(217 73% 47%), hsl(24 94% 52%));
+    --shadow-stat: 0 8px 24px -12px hsl(217 73% 47% / 0.45);
+
+    --sidebar-background: 0 0% 99%;
+    --sidebar-foreground: 220 9% 15%;
+    --sidebar-primary: 217 73% 47%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 220 14% 96%;
+    --sidebar-accent-foreground: 220 9% 15%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217 73% 47%;
+  }
+
+
+  .dark {
+    --background: 220 13% 7%;
+    --foreground: 220 9% 95%;
+
+    --card: 220 13% 9%;
+    --card-foreground: 220 9% 95%;
+
+    --popover: 220 13% 9%;
+    --popover-foreground: 220 9% 95%;
+
+    --primary: 217 73% 55%;
+    --primary-foreground: 0 0% 100%;
+
+
+    --secondary: 220 13% 15%;
+    --secondary-foreground: 220 9% 85%;
+
+    --muted: 220 13% 15%;
+    --muted-foreground: 220 9% 65%;
+
+    --accent: 220 13% 15%;
+    --accent-foreground: 220 9% 85%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 220 9% 95%;
+
+    --success: 142 76% 36%;
+    --success-foreground: 220 9% 95%;
+
+    --warning: 38 92% 50%;
+    --warning-foreground: 220 9% 95%;
+
+    --border: 220 13% 15%;
+    --input: 220 13% 15%;
+    --ring: 217 73% 55%;
+
+    /* Kaam-specific colors for dark mode */
+    --kaam-blue: 217 73% 55%;
+    --kaam-blue-light: 217 73% 15%;
+    --kaam-slate: 220 9% 65%;
+    --kaam-slate-light: 220 13% 15%;
+
+    /* Brand orange (dark) */
+
+    --brand-orange: 24 94% 58%;
+    --brand-orange-light: 24 40% 18%;
+    --brand-orange-foreground: 0 0% 100%;
+
+
+    --chart-1: 217 73% 58%;
+    --chart-2: 24 94% 58%;
+    --chart-3: 199 89% 58%;
+    --chart-4: 38 92% 58%;
+    --chart-5: 262 62% 65%;
+    --chart-6: 142 60% 50%;
+
+    --gradient-blue: linear-gradient(135deg, hsl(217 73% 45%), hsl(199 89% 45%));
+    --gradient-orange: linear-gradient(135deg, hsl(24 94% 48%), hsl(38 92% 48%));
+    --gradient-brand: linear-gradient(135deg, hsl(217 73% 45%), hsl(24 94% 48%));
+    --shadow-stat: 0 8px 24px -12px hsl(0 0% 0% / 0.6);
+
+    --sidebar-background: 220 13% 9%;
+    --sidebar-foreground: 220 9% 85%;
+    --sidebar-primary: 217 73% 55%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 13% 15%;
+    --sidebar-accent-foreground: 220 9% 85%;
+    --sidebar-border: 220 13% 15%;
+    --sidebar-ring: 217 73% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    font-family: 'Darker Grotesque', ui-sans-serif, system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Darker Grotesque', ui-sans-serif, system-ui, sans-serif;
+    font-size: 1.125rem;
+    font-weight: 500;
+    line-height: 1.6;
+    letter-spacing: 0.005em;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Darker Grotesque', ui-sans-serif, system-ui, sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.015em;
+  }
+
+  label, button, th {
+    font-weight: 600;
+  }
+
+  /* Muted copy stays readable with this narrow typeface */
+  .text-muted-foreground {
+    font-weight: 500;
+  }
+}
+
+
+@layer utilities {
+  .bg-gradient-blue {
+    background-image: var(--gradient-blue);
+  }
+  .bg-gradient-orange {
+    background-image: var(--gradient-orange);
+  }
+  .bg-gradient-brand {
+    background-image: var(--gradient-brand);
+  }
+  .shadow-stat {
+    box-shadow: var(--shadow-stat);
+  }
+  .animate-fade-in {
+    animation: fade-in 0.3s ease-out both;
+  }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
