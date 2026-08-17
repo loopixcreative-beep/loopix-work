@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
 import { toast } from '@/hooks/use-toast';
+import { friendlyErrorMessage } from '@/lib/errors';
 import { Loader2, ArrowLeft, MailCheck, ShieldCheck } from 'lucide-react';
 
 type View = 'auth' | 'forgot' | 'otp';
@@ -53,7 +54,7 @@ const Auth = () => {
       } else {
         toast({
           title: 'Error signing in',
-          description: error.message,
+          description: friendlyErrorMessage(error),
           variant: 'destructive',
         });
       }
@@ -71,7 +72,7 @@ const Auth = () => {
     if (error) {
       toast({
         title: 'Error signing up',
-        description: error.message,
+        description: friendlyErrorMessage(error),
         variant: 'destructive',
       });
     } else {
@@ -92,7 +93,7 @@ const Auth = () => {
     setIsLoading(true);
     const { error } = await resetPassword(forgotEmail);
     if (error) {
-      toast({ title: 'Could not send reset email', description: error.message, variant: 'destructive' });
+      toast({ title: 'Could not send reset email', description: friendlyErrorMessage(error), variant: 'destructive' });
     } else {
       setForgotSent(true);
       toast({ title: 'Reset link sent', description: 'Check your inbox to set a new password.' });
@@ -106,7 +107,7 @@ const Auth = () => {
     setIsLoading(true);
     const { error } = await verifyOtp(otpEmail, token, 'signup');
     if (error) {
-      toast({ title: 'Verification failed', description: error.message, variant: 'destructive' });
+      toast({ title: 'Verification failed', description: friendlyErrorMessage(error), variant: 'destructive' });
     } else {
       toast({ title: 'Email verified', description: 'Welcome to Kaam!' });
     }
@@ -118,7 +119,7 @@ const Auth = () => {
     const { error } = await resendOtp(otpEmail, 'signup');
     toast(
       error
-        ? { title: 'Could not resend code', description: error.message, variant: 'destructive' }
+        ? { title: 'Could not resend code', description: friendlyErrorMessage(error), variant: 'destructive' }
         : { title: 'Code resent', description: `A new code is on its way to ${otpEmail}.` }
     );
     setIsLoading(false);

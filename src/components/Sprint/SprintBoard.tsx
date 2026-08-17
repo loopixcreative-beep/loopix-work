@@ -13,6 +13,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertTriangle, CheckCircle2, X, Rocket } from 'lucide-react';
 import { ResponsiveContainer, AreaChart, Area, XAxis, Tooltip as RTooltip } from 'recharts';
 import { cn } from '@/lib/utils';
+import { friendlyErrorMessage } from '@/lib/errors';
 import { SprintTaskCard } from './SprintTaskCard';
 import { BOARD_COLUMNS, BoardStatus, Sprint, SprintTask } from './types';
 
@@ -100,7 +101,7 @@ export const SprintBoard = ({ projectId, canManage }: Props) => {
       .eq('id', task.id);
 
     if (error) {
-      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+      toast({ title: 'Error', description: friendlyErrorMessage(error), variant: 'destructive' });
       load();
       return;
     }
@@ -183,7 +184,7 @@ export const SprintBoard = ({ projectId, canManage }: Props) => {
         .select('id')
         .single();
       if (error) {
-        toast({ title: 'Error', description: error.message, variant: 'destructive' });
+        toast({ title: 'Error', description: friendlyErrorMessage(error), variant: 'destructive' });
         return;
       }
       newSprintId = data.id;
@@ -203,7 +204,7 @@ export const SprintBoard = ({ projectId, canManage }: Props) => {
       .update({ status: 'completed', completed_at: new Date().toISOString(), is_active: false } as never)
       .eq('id', sprint.id);
     if (error) {
-      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+      toast({ title: 'Error', description: friendlyErrorMessage(error), variant: 'destructive' });
       return;
     }
 

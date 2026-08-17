@@ -18,6 +18,7 @@ import { ArrowLeft, Edit, Calendar as CalendarIcon, User, Clock, AlertCircle, Me
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
+import { friendlyErrorMessage } from '@/lib/errors';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useForm } from 'react-hook-form';
@@ -246,7 +247,7 @@ const IssueDetail = () => {
     } catch (error: any) {
       toast({
         title: "Error",
-        description: error.message,
+        description: friendlyErrorMessage(error),
         variant: "destructive",
       });
     }
@@ -319,7 +320,7 @@ const IssueDetail = () => {
     } catch (error: any) {
       toast({
         title: "Error",
-        description: error.message,
+        description: friendlyErrorMessage(error),
         variant: "destructive",
       });
     }

@@ -14,6 +14,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
+import { friendlyErrorMessage } from '@/lib/errors';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 
 const projectSchema = z.object({
@@ -139,7 +140,7 @@ const CreateProject = () => {
     } catch (error: any) {
       toast({
         title: "Error",
-        description: error.message,
+        description: friendlyErrorMessage(error),
         variant: "destructive",
       });
     } finally {

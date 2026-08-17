@@ -12,6 +12,7 @@ import { useUserRoles } from '@/hooks/useUserRoles';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { UserAvatar } from '@/components/ui/user-avatar';
 import { useToast } from '@/hooks/use-toast';
+import { friendlyErrorMessage } from '@/lib/errors';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { format } from 'date-fns';
@@ -119,7 +120,7 @@ const Projects = () => {
       });
       fetchProjects();
     } catch (error: any) {
-      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+      toast({ title: 'Error', description: friendlyErrorMessage(error), variant: 'destructive' });
     }
   };
 
@@ -291,7 +292,7 @@ const Projects = () => {
     } catch (error: any) {
       toast({
         title: 'Error',
-        description: error.message,
+        description: friendlyErrorMessage(error),
         variant: 'destructive',
       });
     } finally {

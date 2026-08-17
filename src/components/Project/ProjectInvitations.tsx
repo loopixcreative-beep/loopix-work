@@ -10,6 +10,7 @@ import { UserPlus, Mail, Clock, CheckCircle, XCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
+import { friendlyErrorMessage } from '@/lib/errors';
 import { format } from 'date-fns';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -114,7 +115,7 @@ const ProjectInvitations = ({ projectId }: ProjectInvitationsProps) => {
     } catch (error: any) {
       toast({
         title: "Error",
-        description: error.message,
+        description: friendlyErrorMessage(error),
         variant: "destructive",
       });
     }

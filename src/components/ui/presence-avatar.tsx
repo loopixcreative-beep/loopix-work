@@ -22,7 +22,7 @@ export const PresenceAvatar = ({ userId, showLabel, ...props }: PresenceAvatarPr
           title={working ? 'Working now' : 'Online'}
           className={cn(
             'absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-background',
-            working ? 'bg-chart-2 animate-pulse' : 'bg-chart-2/50',
+            working ? 'bg-chart-6 animate-pulse' : 'bg-chart-6/50',
           )}
         />
       )}

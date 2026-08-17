@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { StatCard } from '@/components/ui/stat-card';
 import { TimerToggle } from '@/components/TimeLog/TimerToggle';
@@ -39,6 +40,7 @@ const TimeLog = () => {
   const [people, setPeople] = useState<Person[]>([]);
   const [loading, setLoading] = useState(true);
   const [teamRange, setTeamRange] = useState<'today' | 'week' | 'month'>('today');
+  const [visibleSessionCount, setVisibleSessionCount] = useState(10);
 
   const weekStart = useMemo(() => startOfWeek(new Date(), { weekStartsOn: 0 }), []);
   const monthStart = useMemo(() => startOfMonth(new Date()), []);
@@ -71,9 +73,15 @@ const TimeLog = () => {
     Math.max(0, Math.round((Date.now() - new Date(s.started_at).getTime()) / 1000));
 
   const mySessions = sessions.filter((s) => s.user_id === user?.id);
-  const todaySeconds = mySessions
-    .filter((s) => isSameDay(new Date(s.started_at), new Date()))
-    .reduce((sum, s) => sum + secondsOf(s), 0);
+  const todaySessions = mySessions.filter((s) => isSameDay(new Date(s.started_at), new Date()));
+  const todaySeconds = todaySessions.reduce((sum, s) => sum + secondsOf(s), 0);
+
+  // Pagination resets automatically if the tab stays open across midnight —
+  // the list only ever shows today's sessions, so a new day means a fresh list.
+  const todayKey = format(new Date(), 'yyyy-MM-dd');
+  useEffect(() => {
+    setVisibleSessionCount(10);
+  }, [todayKey]);
   const weekSessions = mySessions.filter((s) => new Date(s.started_at) >= weekStart);
   const weekSeconds = weekSessions.reduce((sum, s) => sum + secondsOf(s), 0);
   const avgSession = weekSessions.length ? weekSeconds / weekSessions.length : 0;
@@ -226,16 +234,16 @@ const TimeLog = () => {
       <Card>
         <CardHeader>
           <CardTitle>My sessions</CardTitle>
-          <CardDescription>Most recent work sessions</CardDescription>
+          <CardDescription>Today's work sessions — resets each new day</CardDescription>
         </CardHeader>
         <CardContent className="space-y-2">
           {loading && <div className="h-24 animate-pulse rounded-lg bg-muted" />}
-          {!loading && mySessions.length === 0 && (
+          {!loading && todaySessions.length === 0 && (
             <p className="py-8 text-center text-sm text-muted-foreground">
-              No sessions yet — hit “Start working” to log your first one.
+              No sessions yet today — hit “Start working” to log your first one.
             </p>
           )}
-          {mySessions.slice(0, 25).map((s) => (
+          {todaySessions.slice(0, visibleSessionCount).map((s) => (
             <div
               key={s.id}
               className="flex flex-wrap items-center justify-between gap-2 rounded-lg border px-3 py-2"
@@ -255,6 +263,16 @@ const TimeLog = () => {
               </Badge>
             </div>
           ))}
+          {todaySessions.length > visibleSessionCount && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="w-full"
+              onClick={() => setVisibleSessionCount((n) => n + 10)}
+            >
+              See more ({todaySessions.length - visibleSessionCount} more)
+            </Button>
+          )}
         </CardContent>
       </Card>
     </div>

@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths } from "date-fns";
 import NepaliDate from "nepali-date-converter";
+import { cn } from "@/lib/utils";
 import { ImageUploader } from "@/components/Calendar/ImageUploader";
 import { FullScreenImageViewer } from "@/components/Calendar/FullScreenImageViewer";
 import { 
@@ -444,6 +445,7 @@ const Calendar = () => {
                 const isCurrentMonth = calendarSystem === "AD" ? isSameMonth(day, currentDate) : true;
                 const hasEvent = dayInfo.dayData?.event && dayInfo.dayData.event.trim() !== '';
                 const isHoliday = dayInfo.dayData?.holiday || false;
+                const previewImage = dayEntries.find((e) => e.images && e.images.length > 0)?.images?.[0];
 
                 return (
                   <button
@@ -459,38 +461,65 @@ const Calendar = () => {
                         setIsDialogOpen(true);
                       }
                     }}
-                    className={`
-                      aspect-square p-2 rounded-md border transition-all relative
-                      ${isCurrentMonth ? "bg-background" : "bg-muted/50"}
-                      ${isToday ? "border-primary border-2 bg-primary/10" : "border-border"}
-                      ${isHoliday ? "bg-destructive/10 border-destructive/30" : ""}
-                      ${dayEntries.length > 0 ? "bg-accent/30" : ""}
-                      hover:bg-accent hover:shadow-md
-                    `}
+                    className={cn(
+                      "group aspect-square rounded-md border transition-all relative overflow-hidden",
+                      isCurrentMonth ? "bg-background" : "bg-muted/50",
+                      isToday ? "border-primary border-2" : "border-border",
+                      isHoliday && "bg-destructive/10 border-destructive/30",
+                      dayEntries.length > 0 && !previewImage && "bg-accent/30",
+                      "hover:shadow-md",
+                      !previewImage && "hover:bg-accent",
+                    )}
                   >
-                    <div className="flex flex-col h-full">
+                    {previewImage && (
+                      <>
+                        <img
+                          src={previewImage}
+                          alt=""
+                          className="absolute inset-0 h-full w-full object-cover transition-transform duration-200 group-hover:scale-105"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-black/40" />
+                      </>
+                    )}
+                    <div className={cn("relative flex h-full flex-col p-2", previewImage && "text-white")}>
                       <div className="flex items-start justify-between">
-                        <span className={`text-sm font-medium ${isToday ? "text-primary font-bold" : "text-foreground"}`}>
+                        <span
+                          className={cn(
+                            "text-sm font-medium",
+                            isToday && "font-bold",
+                            previewImage ? "text-white drop-shadow" : isToday ? "text-primary" : "text-foreground",
+                          )}
+                        >
                           {calendarSystem === "BS" && dayInfo.bsDate ? dayInfo.bsDate : format(day, "d")}
                         </span>
                         {hasEvent && (
-                          <span className={`text-xs ${isHoliday ? "text-destructive" : "text-primary"}`}>●</span>
+                          <span className={cn("text-xs", isHoliday ? "text-destructive" : previewImage ? "text-white" : "text-primary")}>●</span>
                         )}
                       </div>
                       {hasEvent && (
-                        <p className="text-xs text-muted-foreground mt-1 line-clamp-1" title={dayInfo.dayData?.event}>
+                        <p
+                          className={cn("text-xs mt-1 line-clamp-1", previewImage ? "text-white/90 drop-shadow" : "text-muted-foreground")}
+                          title={dayInfo.dayData?.event}
+                        >
                           {dayInfo.dayData?.event}
                         </p>
                       )}
                       {dayEntries.length > 0 && (
                         <div className="mt-auto flex flex-wrap gap-1">
                           {dayEntries.slice(0, 1).map((entry, idx) => (
-                            <Badge key={idx} variant="secondary" className="text-xs px-1 py-0 h-4">
+                            <Badge
+                              key={idx}
+                              variant={previewImage ? "outline" : "secondary"}
+                              className={cn("text-xs px-1 py-0 h-4", previewImage && "border-white/40 bg-black/40 text-white backdrop-blur-sm")}
+                            >
                               {entry.title.length > 6 ? entry.title.substring(0, 6) + "..." : entry.title}
                             </Badge>
                           ))}
                           {dayEntries.length > 1 && (
-                            <Badge variant="outline" className="text-xs px-1 py-0 h-4">
+                            <Badge
+                              variant="outline"
+                              className={cn("text-xs px-1 py-0 h-4", previewImage && "border-white/40 bg-black/40 text-white backdrop-blur-sm")}
+                            >
                               +{dayEntries.length - 1}
                             </Badge>
                           )}

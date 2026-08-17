@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from '@/hooks/use-toast';
+import { friendlyErrorMessage } from '@/lib/errors';
 import { Loader2, KeyRound } from 'lucide-react';
 
 const ResetPassword = () => {
@@ -42,7 +43,7 @@ const ResetPassword = () => {
     setIsLoading(true);
     const { error } = await updatePassword(password);
     if (error) {
-      toast({ title: 'Could not update password', description: error.message, variant: 'destructive' });
+      toast({ title: 'Could not update password', description: friendlyErrorMessage(error), variant: 'destructive' });
     } else {
       toast({ title: 'Password updated', description: 'You can now use your new password.' });
       navigate('/', { replace: true });

@@ -15,6 +15,7 @@ import { Plus, Calendar as CalendarIcon, Play, Square, CheckCircle } from 'lucid
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
+import { friendlyErrorMessage } from '@/lib/errors';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 
@@ -107,7 +108,7 @@ const SprintManagement = ({ projectId }: SprintManagementProps) => {
     } catch (error: any) {
       toast({
         title: "Error",
-        description: error.message,
+        description: friendlyErrorMessage(error),
         variant: "destructive",
       });
     }
@@ -138,7 +139,7 @@ const SprintManagement = ({ projectId }: SprintManagementProps) => {
     } catch (error: any) {
       toast({
         title: "Error",
-        description: error.message,
+        description: friendlyErrorMessage(error),
         variant: "destructive",
       });
     }
@@ -162,7 +163,7 @@ const SprintManagement = ({ projectId }: SprintManagementProps) => {
     } catch (error: any) {
       toast({
         title: "Error",
-        description: error.message,
+        description: friendlyErrorMessage(error),
         variant: "destructive",
       });
     }

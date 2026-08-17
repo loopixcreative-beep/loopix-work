@@ -2,6 +2,8 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from '@/hooks/use-toast';
+import { isMobileDevice } from '@/lib/device';
+import { friendlyErrorMessage } from '@/lib/errors';
 
 export interface WorkSession {
   id: string;
@@ -28,6 +30,8 @@ interface WorkTimerContextValue {
   /** user ids currently connected to the app */
   onlineUsers: Set<string>;
   refresh: () => Promise<void>;
+  /** this browser session is on a phone — starting/resuming the timer is blocked here */
+  isMobile: boolean;
 }
 
 const WorkTimerContext = createContext<WorkTimerContextValue | null>(null);
@@ -46,7 +50,7 @@ export const formatHours = (totalSeconds: number) => {
 };
 
 export const WorkTimerProvider = ({ children }: { children: React.ReactNode }) => {
-  const { user } = useAuth();
+  const { user, session } = useAuth();
   const [activeSession, setActiveSession] = useState<WorkSession | null>(null);
   const [loading, setLoading] = useState(true);
   const [elapsed, setElapsed] = useState(0);
@@ -54,6 +58,60 @@ export const WorkTimerProvider = ({ children }: { children: React.ReactNode }) =
   const [onlineUsers, setOnlineUsers] = useState<Set<string>>(new Set());
   const [paused, setPaused] = useState(false);
   const tickRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const activeSessionRef = useRef<WorkSession | null>(null);
+  const accessTokenRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    activeSessionRef.current = activeSession;
+  }, [activeSession]);
+
+  useEffect(() => {
+    accessTokenRef.current = session?.access_token ?? null;
+  }, [session]);
+
+  // Actually end the session when the tab/browser is closing. beforeunload can
+  // only warn (browsers block custom dialogs there); pagehide fires once the
+  // user has committed to leaving, so this is where we do the real work. A
+  // normal supabase-js call isn't guaranteed to finish once the page starts
+  // tearing down, so this fires a raw keepalive fetch instead — the browser
+  // guarantees a small keepalive request completes even after unload.
+  // Trade-off: a hard refresh (F5) fires the same event as closing the tab,
+  // so a refresh also stops the timer — there's no way to tell them apart.
+  useEffect(() => {
+    const handlePageHide = () => {
+      const activeAtUnload = activeSessionRef.current;
+      const token = accessTokenRef.current;
+      if (!activeAtUnload || !token) return;
+
+      const endedAt = new Date();
+      const duration = Math.max(
+        1,
+        Math.round((endedAt.getTime() - new Date(activeAtUnload.started_at).getTime()) / 1000),
+      );
+
+      try {
+        fetch(
+          `${import.meta.env.VITE_SUPABASE_URL}/rest/v1/work_sessions?id=eq.${activeAtUnload.id}`,
+          {
+            method: 'PATCH',
+            headers: {
+              apikey: String(import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY),
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json',
+              Prefer: 'return=minimal',
+            },
+            body: JSON.stringify({ ended_at: endedAt.toISOString(), duration_seconds: duration }),
+            keepalive: true,
+          },
+        ).catch(() => {});
+      } catch {
+        // Best effort — nothing more we can do once the page is unloading.
+      }
+    };
+    window.addEventListener('pagehide', handlePageHide);
+    return () => window.removeEventListener('pagehide', handlePageHide);
+  }, []);
+  const [isMobile] = useState(isMobileDevice);
 
   const refresh = useCallback(async () => {
     if (!user) {
@@ -135,6 +193,15 @@ export const WorkTimerProvider = ({ children }: { children: React.ReactNode }) =
   const start = useCallback(
     async (note?: string) => {
       if (!user || activeSession) return;
+      if (isMobile) {
+        toast({
+          title: 'Timer unavailable on mobile',
+          description:
+            'Timer cannot be started from a mobile device. Please log in from your primary device (desktop or laptop) to start tracking.',
+          variant: 'destructive',
+        });
+        return;
+      }
       if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'default') {
         // Ask while we have a user gesture (the Start click) — needed later so the
         // "are you still working?" prompt can alert the user even if the tab is minimized.
@@ -146,7 +213,7 @@ export const WorkTimerProvider = ({ children }: { children: React.ReactNode }) =
         .select('id, user_id, started_at, ended_at, duration_seconds, note')
         .single();
       if (error) {
-        toast({ title: 'Could not start timer', description: error.message, variant: 'destructive' });
+        toast({ title: 'Could not start timer', description: friendlyErrorMessage(error), variant: 'destructive' });
         return;
       }
       setActiveSession(data as WorkSession);
@@ -154,7 +221,7 @@ export const WorkTimerProvider = ({ children }: { children: React.ReactNode }) =
       setWorkingUsers((prev) => new Set(prev).add(user.id));
       toast({ title: 'Timer started', description: 'Your working hours are now being tracked.' });
     },
-    [user, activeSession],
+    [user, activeSession, isMobile],
   );
 
   const endActiveSession = useCallback(async (): Promise<number | null> => {
@@ -169,7 +236,7 @@ export const WorkTimerProvider = ({ children }: { children: React.ReactNode }) =
       .update({ ended_at: endedAt.toISOString(), duration_seconds: duration })
       .eq('id', activeSession.id);
     if (error) {
-      toast({ title: 'Could not stop timer', description: error.message, variant: 'destructive' });
+      toast({ title: 'Could not stop timer', description: friendlyErrorMessage(error), variant: 'destructive' });
       return null;
     }
     setActiveSession(null);
@@ -216,8 +283,9 @@ export const WorkTimerProvider = ({ children }: { children: React.ReactNode }) =
       workingUsers,
       onlineUsers,
       refresh,
+      isMobile,
     }),
-    [activeSession, elapsed, paused, loading, start, stop, pause, resume, workingUsers, onlineUsers, refresh],
+    [activeSession, elapsed, paused, loading, start, stop, pause, resume, workingUsers, onlineUsers, refresh, isMobile],
   );
 
   return <WorkTimerContext.Provider value={value}>{children}</WorkTimerContext.Provider>;

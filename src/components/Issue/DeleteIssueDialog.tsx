@@ -15,6 +15,7 @@ import { Trash2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
+import { friendlyErrorMessage } from '@/lib/errors';
 
 export const DELETE_REASONS = [
   'Created by mistake',
@@ -144,7 +145,7 @@ export const DeleteIssueDialog = ({
       setOpen(false);
       onDeleted?.();
     } catch (error: any) {
-      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+      toast({ title: 'Error', description: friendlyErrorMessage(error), variant: 'destructive' });
     } finally {
       setDeleting(false);
     }

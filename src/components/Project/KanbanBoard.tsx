@@ -11,6 +11,7 @@ import { Link } from 'react-router-dom';
 import { format } from 'date-fns';
 import { AssigneesList } from '@/components/Issue/AssigneesList';
 import { useToast } from '@/hooks/use-toast';
+import { friendlyErrorMessage } from '@/lib/errors';
 import { cn } from '@/lib/utils';
 
 interface Issue {
@@ -131,7 +132,7 @@ const KanbanBoard = ({ projectId }: KanbanBoardProps) => {
       setIssues(previous);
       toast({
         title: 'Could not move task',
-        description: error.message,
+        description: friendlyErrorMessage(error),
         variant: 'destructive',
       });
     } else {
