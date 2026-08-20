@@ -1,4 +1,4 @@
-import { Home, FolderKanban, Users, BarChart3, Calendar as CalendarIcon, Settings, Plus, Search, ImageIcon, CalendarDays, TrendingUp, ChevronRight, Archive, Gauge, ListChecks, Timer } from 'lucide-react';
+import { Home, FolderKanban, Users, BarChart3, Calendar as CalendarIcon, Settings, Plus, Search, ImageIcon, CalendarDays, TrendingUp, ChevronRight, Archive, Gauge, ListChecks, Timer, Megaphone } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarMenuSub, SidebarMenuSubItem, SidebarMenuSubButton, SidebarGroup, SidebarGroupContent, SidebarGroupLabel } from '@/components/ui/sidebar';
@@ -9,6 +9,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { GlobalSearch } from '@/components/Layout/GlobalSearch';
+import { useUnreadNotificationType } from '@/hooks/useUnreadNotificationType';
 
 const navigation = [
   { name: 'Dashboard', href: '/', icon: Home },
@@ -16,6 +17,7 @@ const navigation = [
   { name: 'Sprints', href: '/sprints/timeline', icon: Gauge },
   { name: 'Time Log', href: '/time-log', icon: Timer },
   { name: 'Teams', href: '/teams', icon: Users },
+  { name: 'Announcements', href: '/announcements', icon: Megaphone },
   { name: 'Calendar', href: '/calendar', icon: CalendarIcon },
   { name: 'Content Calendar', href: '/content-calendar', icon: CalendarDays },
   { name: 'Media Library', href: '/media-library', icon: ImageIcon },
@@ -35,6 +37,7 @@ export const AppSidebar = () => {
   const [projectsOpen, setProjectsOpen] = useState(location.pathname.startsWith('/projects'));
   const [closedOpen, setClosedOpen] = useState(false);
   const [noActiveSprint, setNoActiveSprint] = useState(false);
+  const hasUnreadAnnouncements = useUnreadNotificationType('announcement');
 
   useEffect(() => {
     if (user) {
@@ -126,6 +129,7 @@ export const AppSidebar = () => {
                   ? location.pathname.startsWith('/sprints')
                   : location.pathname === item.href;
                 const showSprintDot = item.name === 'Sprints' && noActiveSprint;
+                const showAnnouncementDot = item.name === 'Announcements' && hasUnreadAnnouncements;
                 const navItem = (
                   <SidebarMenuItem key={item.name}>
                     <SidebarMenuButton asChild isActive={isActive}>
@@ -136,6 +140,12 @@ export const AppSidebar = () => {
                           <span
                             title="No active sprint"
                             className="ml-auto h-2 w-2 rounded-full bg-chart-2"
+                          />
+                        )}
+                        {showAnnouncementDot && (
+                          <span
+                            title="New announcement"
+                            className="ml-auto h-2 w-2 rounded-full bg-primary animate-pulse"
                           />
                         )}
                       </Link>

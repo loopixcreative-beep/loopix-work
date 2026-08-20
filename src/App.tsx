@@ -12,6 +12,7 @@ import Calendar from "./pages/Calendar";
 import Dashboard from "./pages/Dashboard";
 import Projects from "./pages/Projects";
 import Teams from "./pages/Teams";
+import Announcements from "./pages/Announcements";
 import Reports from "./pages/Reports";
 import CreateProject from "./pages/CreateProject";
 import ProjectDetail from "./pages/ProjectDetail";
@@ -84,6 +85,11 @@ const App = () => (
             <Route path="/teams" element={
               <ProtectedRoute>
                 <Teams />
+              </ProtectedRoute>
+            } />
+            <Route path="/announcements" element={
+              <ProtectedRoute>
+                <Announcements />
               </ProtectedRoute>
             } />
             <Route path="/reports" element={

@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      announcement_messages: {
+        Row: {
+          author_id: string
+          content: string | null
+          created_at: string
+          id: string
+          media_type: string | null
+          media_url: string | null
+          mentioned_user_ids: string[]
+        }
+        Insert: {
+          author_id: string
+          content?: string | null
+          created_at?: string
+          id?: string
+          media_type?: string | null
+          media_url?: string | null
+          mentioned_user_ids?: string[]
+        }
+        Update: {
+          author_id?: string
+          content?: string | null
+          created_at?: string
+          id?: string
+          media_type?: string | null
+          media_url?: string | null
+          mentioned_user_ids?: string[]
+        }
+        Relationships: []
+      }
       calendar_entries: {
         Row: {
           content: string | null
