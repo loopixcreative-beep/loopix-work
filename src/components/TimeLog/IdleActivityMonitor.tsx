@@ -84,11 +84,24 @@ export const IdleActivityMonitor = () => {
     }
   }, []);
 
+  // (Re)starts the 5-minute idle-check window fresh from right now. Called on
+  // timer start and after every confirmation, so each window always measures
+  // a full 5 minutes of *actual* inactivity rather than reusing a stale count.
+  const scheduleCheck = useCallback(() => {
+    if (checkIntervalRef.current) clearInterval(checkIntervalRef.current);
+    activityCountRef.current = 0;
+    checkIntervalRef.current = setInterval(() => {
+      const hadActivity = activityCountRef.current > 0;
+      activityCountRef.current = 0;
+      if (!hadActivity) openStillWorkingPrompt();
+    }, ACTIVITY_CHECK_INTERVAL_MS);
+  }, [openStillWorkingPrompt]);
+
   const closePrompt = useCallback(() => {
     setPromptOpen(false);
     clearCountdown();
-    activityCountRef.current = 1; // don't immediately re-trigger on the next 5-minute check
-  }, []);
+    scheduleCheck();
+  }, [scheduleCheck]);
 
   const handleStillWorking = useCallback(() => {
     closePrompt();
@@ -118,12 +131,7 @@ export const IdleActivityMonitor = () => {
       return;
     }
 
-    activityCountRef.current = 0;
-    checkIntervalRef.current = setInterval(() => {
-      const hadActivity = activityCountRef.current > 0;
-      activityCountRef.current = 0;
-      if (!hadActivity) openStillWorkingPrompt();
-    }, ACTIVITY_CHECK_INTERVAL_MS);
+    scheduleCheck();
 
     return () => {
       if (checkIntervalRef.current) {
@@ -131,12 +139,16 @@ export const IdleActivityMonitor = () => {
         checkIntervalRef.current = null;
       }
     };
-  }, [running, openStillWorkingPrompt]);
+  }, [running, scheduleCheck]);
 
-  // 30-second countdown once the prompt is open.
+  // 30-second countdown once the prompt is open. Skipped while the tab is
+  // hidden — a dialog the user can't see shouldn't burn down their window to
+  // respond to it. The remaining seconds resume the moment the tab is visible
+  // again, so switching away doesn't cost them their chance to confirm.
   useEffect(() => {
     if (!promptOpen) return;
     countdownIntervalRef.current = setInterval(() => {
+      if (typeof document !== 'undefined' && document.hidden) return;
       setSecondsLeft((prev) => Math.max(0, prev - 1));
     }, 1000);
     return () => {
