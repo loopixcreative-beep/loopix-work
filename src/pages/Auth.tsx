@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Link, Navigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { PasswordInput } from '@/components/ui/password-input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -15,6 +16,7 @@ type View = 'auth' | 'forgot' | 'otp';
 
 const Auth = () => {
   const { user, signIn, signUp, loading, resetPassword, verifyOtp, resendOtp } = useAuth();
+  const [searchParams] = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
   const [view, setView] = useState<View>('auth');
   const [signInData, setSignInData] = useState({ email: '', password: '' });
@@ -132,11 +134,13 @@ const Auth = () => {
 
       <Card className="w-full max-w-md animate-fade-in shadow-stat">
         <CardHeader className="text-center">
-          <img
-            src="https://res.cloudinary.com/dkk7zqgnz/image/upload/v1785424794/Loopix_final_ibeklc.png"
-            alt="Loopix Kaam logo"
-            className="mx-auto mb-4 h-16 w-16 object-contain"
-          />
+          <Link to="/" className="mx-auto mb-4 block w-fit">
+            <img
+              src="https://res.cloudinary.com/dkk7zqgnz/image/upload/v1785424794/Loopix_final_ibeklc.png"
+              alt="Loopix Kaam logo"
+              className="h-16 w-16 object-contain"
+            />
+          </Link>
           <CardTitle className="text-3xl">
             {view === 'forgot' ? 'Reset your password' : view === 'otp' ? 'Verify your email' : 'Welcome to Kaam'}
           </CardTitle>
@@ -151,7 +155,7 @@ const Auth = () => {
 
         <CardContent>
           {view === 'auth' && (
-            <Tabs defaultValue="signin" className="w-full">
+            <Tabs defaultValue={searchParams.get('tab') === 'signup' ? 'signup' : 'signin'} className="w-full">
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="signin">Sign In</TabsTrigger>
                 <TabsTrigger value="signup">Sign Up</TabsTrigger>
@@ -185,9 +189,8 @@ const Auth = () => {
                         Forgot password?
                       </button>
                     </div>
-                    <Input
+                    <PasswordInput
                       id="password"
-                      type="password"
                       placeholder="Enter your password"
                       value={signInData.password}
                       onChange={(e) => setSignInData({ ...signInData, password: e.target.value })}
@@ -226,9 +229,8 @@ const Auth = () => {
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="signupPassword">Password</Label>
-                    <Input
+                    <PasswordInput
                       id="signupPassword"
-                      type="password"
                       placeholder="Create a password"
                       value={signUpData.password}
                       onChange={(e) => setSignUpData({ ...signUpData, password: e.target.value })}
@@ -323,6 +325,13 @@ const Auth = () => {
               </div>
             </div>
           )}
+
+          <Button variant="ghost" className="mt-4 w-full" asChild>
+            <Link to="/">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to home
+            </Link>
+          </Button>
         </CardContent>
       </Card>
     </div>
