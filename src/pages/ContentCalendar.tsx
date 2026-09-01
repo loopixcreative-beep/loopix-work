@@ -279,7 +279,7 @@ export default function ContentCalendar() {
                   <Card
                     key={issue.id}
                     className="cursor-pointer hover:bg-accent transition-colors"
-                    onClick={() => navigate(`/issues/${issue.id}`)}
+                    onClick={() => navigate(`/app/issues/${issue.id}`)}
                   >
                     <CardContent className="p-4 space-y-2">
                       <div className="flex items-start justify-between gap-2">
@@ -398,7 +398,7 @@ export default function ContentCalendar() {
                 <li
                   key={issue.id}
                   className="flex cursor-pointer items-center gap-3 py-3 hover:bg-muted/50"
-                  onClick={() => navigate(`/issues/${issue.id}`)}
+                  onClick={() => navigate(`/app/issues/${issue.id}`)}
                 >
                   <div className="flex h-10 w-10 shrink-0 flex-col items-center justify-center rounded-lg border border-destructive/30 bg-destructive/10 text-destructive">
                     <span className="text-[10px] font-semibold uppercase leading-none">{format(new Date(issue.due_date), "MMM")}</span>
@@ -438,7 +438,7 @@ export default function ContentCalendar() {
                 <li
                   key={issue.id}
                   className="flex cursor-pointer items-center gap-3 py-3 hover:bg-muted/50"
-                  onClick={() => navigate(`/issues/${issue.id}`)}
+                  onClick={() => navigate(`/app/issues/${issue.id}`)}
                 >
                   {getStatusIcon(issue.status)}
                   <div className="min-w-0 flex-1">

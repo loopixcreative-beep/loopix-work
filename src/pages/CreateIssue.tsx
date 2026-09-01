@@ -18,8 +18,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { friendlyErrorMessage } from '@/lib/errors';
+import { projectPath, cn } from '@/lib/utils';
 import { format } from 'date-fns';
-import { cn } from '@/lib/utils';
 
 const issueSchema = z.object({
   title: z.string().min(1, 'Title is required').max(200),
@@ -186,7 +186,7 @@ const CreateIssue = () => {
               type: 'task_assigned',
               title: 'New task assigned to you',
               message: `You were assigned to "${values.title}".`,
-              link: `/issues/${issue.id}`,
+              link: `/app/issues/${issue.id}`,
               metadata: { issue_id: issue.id },
             })),
           );
@@ -199,7 +199,7 @@ const CreateIssue = () => {
         description: `Issue "${values.title}" has been created successfully.`,
       });
 
-      navigate(`/projects/${selectedProjectId}`);
+      navigate(projectPath(selectedProjectId, projects.find((p) => p.id === selectedProjectId)?.name));
     } catch (error: any) {
       toast({
         title: "Error",
@@ -215,7 +215,7 @@ const CreateIssue = () => {
     <div className="space-y-6">
       <div className="flex items-center space-x-4">
         <Button variant="ghost" size="sm" asChild>
-          <Link to={selectedProjectId ? `/projects/${selectedProjectId}` : '/projects'}>
+          <Link to={selectedProjectId ? projectPath(selectedProjectId, projects.find((p) => p.id === selectedProjectId)?.name) : '/app/projects'}>
             <ArrowLeft className="mr-2 h-4 w-4" />
             {selectedProjectId ? 'Back to Project' : 'Back to Projects'}
           </Link>
@@ -529,7 +529,7 @@ const CreateIssue = () => {
 
               <div className="flex justify-end space-x-2">
                 <Button type="button" variant="outline" asChild>
-                  <Link to={selectedProjectId ? `/projects/${selectedProjectId}` : '/projects'}>Cancel</Link>
+                  <Link to={selectedProjectId ? projectPath(selectedProjectId, projects.find((p) => p.id === selectedProjectId)?.name) : '/app/projects'}>Cancel</Link>
                 </Button>
                 <Button type="submit" disabled={loading || !selectedProjectId}>
                   {loading ? 'Creating...' : 'Create Issue'}

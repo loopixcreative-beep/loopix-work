@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { projectPath } from '@/lib/utils';
 
 interface SearchResult {
   id: string;
@@ -77,9 +78,9 @@ export const GlobalSearch = ({ open, onOpenChange }: { open: boolean; onOpenChan
 
   const handleResultClick = (result: SearchResult) => {
     if (result.type === 'project') {
-      navigate(`/projects/${result.id}`);
+      navigate(projectPath(result.id, result.title));
     } else {
-      navigate(`/projects/${result.id}`); // You may need to adjust this to navigate to issue detail
+      navigate(`/app/issues/${result.id}`);
     }
     onOpenChange(false);
     setSearchQuery('');

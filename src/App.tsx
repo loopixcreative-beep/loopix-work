@@ -10,6 +10,7 @@ import { MainLayout } from "@/components/Layout/MainLayout";
 import ProfileSettings from "./pages/ProfileSettings";
 import Calendar from "./pages/Calendar";
 import Dashboard from "./pages/Dashboard";
+import Landing from "./pages/Landing";
 import Projects from "./pages/Projects";
 import Teams from "./pages/Teams";
 import Announcements from "./pages/Announcements";
@@ -31,23 +32,77 @@ import Sprints from "./pages/Sprints";
 import MyTasks from "./pages/MyTasks";
 import TimeLog from "./pages/TimeLog";
 import { WorkTimerProvider } from "@/hooks/useWorkTimer";
+import { WorkspaceProvider, useWorkspace } from "@/hooks/useWorkspace";
 import { IdleActivityMonitor } from "@/components/TimeLog/IdleActivityMonitor";
+import WorkspaceSetup from "./pages/WorkspaceSetup";
+import RecoverWorkspace from "./pages/RecoverWorkspace";
+import PlatformAdmin from "./pages/PlatformAdmin";
 
 
 const queryClient = new QueryClient();
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { user, loading } = useAuth();
-  
-  if (loading) {
+  const { user, loading: authLoading } = useAuth();
+  const { needsSetup, loading: workspaceLoading } = useWorkspace();
+
+  if (authLoading || (user && workspaceLoading)) {
     return <div className="flex min-h-screen items-center justify-center">Loading...</div>;
   }
-  
+
   if (!user) {
     return <Navigate to="/auth" replace />;
   }
-  
+
+  // Signed in but hasn't created/joined a workspace yet — nothing else in
+  // the app is reachable until that's resolved.
+  if (needsSetup) {
+    return <Navigate to="/app/workspace-setup" replace />;
+  }
+
   return <MainLayout>{children}</MainLayout>;
+};
+
+// The workspace-setup screen itself needs a lighter guard: authenticated,
+// but deliberately reachable *without* a workspace (that's the whole point).
+const WorkspaceSetupRoute = ({ children }: { children: React.ReactNode }) => {
+  const { user, loading: authLoading } = useAuth();
+  const { workspace, loading: workspaceLoading } = useWorkspace();
+
+  if (authLoading || (user && workspaceLoading)) {
+    return <div className="flex min-h-screen items-center justify-center">Loading...</div>;
+  }
+
+  if (!user) {
+    return <Navigate to="/auth" replace />;
+  }
+
+  if (workspace) {
+    return <Navigate to="/app" replace />;
+  }
+
+  return <>{children}</>;
+};
+
+// "/" is the public marketing page for signed-out visitors. Signed-in
+// visitors are sent into the workspace at "/app", which has its own
+// distinct URL space for every authenticated page.
+const RootRoute = () => {
+  const { user, loading: authLoading } = useAuth();
+  const { needsSetup, loading: workspaceLoading } = useWorkspace();
+
+  if (authLoading || (user && workspaceLoading)) {
+    return <div className="flex min-h-screen items-center justify-center">Loading...</div>;
+  }
+
+  if (!user) {
+    return <Landing />;
+  }
+
+  if (needsSetup) {
+    return <Navigate to="/app/workspace-setup" replace />;
+  }
+
+  return <Navigate to="/app" replace />;
 };
 
 const App = () => (
@@ -59,6 +114,7 @@ const App = () => (
 
       <BrowserRouter>
         <AuthProvider>
+          <WorkspaceProvider>
           <WorkTimerProvider>
           <IdleActivityMonitor />
           <Routes>
@@ -66,109 +122,119 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
             <Route path="/reset-password" element={<ResetPassword />} />
 
-            <Route path="/" element={
+            <Route path="/" element={<RootRoute />} />
+            <Route path="/app/workspace-setup" element={
+              <WorkspaceSetupRoute>
+                <WorkspaceSetup />
+              </WorkspaceSetupRoute>
+            } />
+            <Route path="/recover-workspace" element={<RecoverWorkspace />} />
+            <Route path="/loopix-console" element={<PlatformAdmin />} />
+
+            {/* Everything below is the authenticated workspace, namespaced under /app */}
+            <Route path="/app" element={
               <ProtectedRoute>
                 <Dashboard />
               </ProtectedRoute>
             } />
-            <Route path="/projects" element={
+            <Route path="/app/projects" element={
               <ProtectedRoute>
                 <Projects />
               </ProtectedRoute>
             } />
-            <Route path="/sprints" element={<Navigate to="/sprints/timeline" replace />} />
-            <Route path="/sprints/:tab" element={
+            <Route path="/app/sprints" element={<Navigate to="/app/sprints/timeline" replace />} />
+            <Route path="/app/sprints/:tab" element={
               <ProtectedRoute>
                 <Sprints />
               </ProtectedRoute>
             } />
-            <Route path="/teams" element={
+            <Route path="/app/teams" element={
               <ProtectedRoute>
                 <Teams />
               </ProtectedRoute>
             } />
-            <Route path="/announcements" element={
+            <Route path="/app/announcements" element={
               <ProtectedRoute>
                 <Announcements />
               </ProtectedRoute>
             } />
-            <Route path="/reports" element={
+            <Route path="/app/reports" element={
               <ProtectedRoute>
                 <Reports />
               </ProtectedRoute>
             } />
-            <Route path="/projects/new" element={
+            <Route path="/app/projects/new" element={
               <ProtectedRoute>
                 <CreateProject />
               </ProtectedRoute>
             } />
-            <Route path="/projects/:projectId" element={
+            <Route path="/app/projects/:projectId/:slug?" element={
               <ProtectedRoute>
                 <ProjectDetail />
               </ProtectedRoute>
             } />
-            <Route path="/projects/:projectId/settings" element={
+            <Route path="/app/projects/:projectId/settings" element={
               <ProtectedRoute>
                 <ProjectSettings />
               </ProtectedRoute>
             } />
-            <Route path="/projects/:projectId/issues/new" element={
+            <Route path="/app/projects/:projectId/issues/new" element={
               <ProtectedRoute>
                 <CreateIssue />
               </ProtectedRoute>
             } />
-            <Route path="/issues/new" element={
+            <Route path="/app/issues/new" element={
               <ProtectedRoute>
                 <CreateIssue />
               </ProtectedRoute>
             } />
-            <Route path="/issues/:issueId" element={
+            <Route path="/app/issues/:issueId" element={
               <ProtectedRoute>
                 <IssueDetail />
               </ProtectedRoute>
             } />
 
-            <Route path="/projects/:projectId/issues/:issueId" element={
+            <Route path="/app/projects/:projectId/issues/:issueId" element={
               <ProtectedRoute>
                 <IssueDetail />
               </ProtectedRoute>
             } />
-            <Route path="/settings" element={
+            <Route path="/app/settings" element={
               <ProtectedRoute>
                 <Settings />
               </ProtectedRoute>
             } />
-            <Route path="/profile-settings" element={
+            <Route path="/app/profile-settings" element={
               <ProtectedRoute>
                 <ProfileSettings />
               </ProtectedRoute>
             } />
-            <Route path="/calendar" element={
+            <Route path="/app/calendar" element={
               <ProtectedRoute>
                 <Calendar />
               </ProtectedRoute>
             } />
-            <Route path="/content-calendar" element={
+            <Route path="/app/content-calendar" element={
               <ProtectedRoute>
                 <ContentCalendar />
               </ProtectedRoute>
             } />
-            <Route path="/media-library" element={
+            <Route path="/app/media-library" element={
               <ProtectedRoute>
                 <MediaLibrary />
               </ProtectedRoute>
             } />
-            <Route path="/analytics" element={
+            <Route path="/app/analytics" element={
               <ProtectedRoute>
                 <ContentAnalytics />
               </ProtectedRoute>
             } />
-            <Route path="/my-tasks" element={
+            <Route path="/app/my-tasks" element={
               <ProtectedRoute>
                 <MyTasks />
               </ProtectedRoute>
             } />
-            <Route path="/time-log" element={
+            <Route path="/app/time-log" element={
               <ProtectedRoute>
                 <TimeLog />
               </ProtectedRoute>
@@ -177,6 +243,7 @@ const App = () => (
             <Route path="*" element={<NotFound />} />
           </Routes>
           </WorkTimerProvider>
+          </WorkspaceProvider>
         </AuthProvider>
 
       </BrowserRouter>

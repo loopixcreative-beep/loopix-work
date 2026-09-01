@@ -16,6 +16,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { friendlyErrorMessage } from '@/lib/errors';
+import { projectPath } from '@/lib/utils';
 
 export const DELETE_REASONS = [
   'Created by mistake',
@@ -126,7 +127,7 @@ export const DeleteIssueDialog = ({
             type: 'task_deleted',
             title: 'Task deleted',
             message: `${actorName} deleted "${label}"${project?.name ? ` in ${project.name}` : ''}. Reason: ${finalReason}`,
-            link: `/projects/${projectId}`,
+            link: projectPath(projectId, project?.name),
             metadata: {
               issue_id: issueId,
               issue_key: issueKey,

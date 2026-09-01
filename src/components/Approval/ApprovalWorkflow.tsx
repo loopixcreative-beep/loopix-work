@@ -98,7 +98,7 @@ export function ApprovalWorkflow({
         type: "approval_request",
         title: "Approval Requested",
         message: `"${issue.title}" needs your approval`,
-        link: `/issues/${issueId}`,
+        link: `/app/issues/${issueId}`,
       });
     }
 
@@ -142,7 +142,7 @@ export function ApprovalWorkflow({
       type: status === "approved" ? "approval_granted" : "approval_rejected",
       title: status === "approved" ? "Content Approved" : "Content Rejected",
       message: `"${issue?.title}" has been ${status}${notes ? ": " + notes : ""}`,
-      link: `/issues/${issueId}`,
+      link: `/app/issues/${issueId}`,
     });
 
     toast.success(

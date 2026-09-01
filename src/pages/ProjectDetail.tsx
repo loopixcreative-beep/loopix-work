@@ -151,7 +151,7 @@ const ProjectDetail = () => {
         <h2 className="text-2xl font-semibold">Project not found</h2>
         <p className="text-muted-foreground mt-2">The project you're looking for doesn't exist.</p>
         <Button asChild className="mt-4">
-          <Link to="/projects">Back to Projects</Link>
+          <Link to="/app/projects">Back to Projects</Link>
         </Button>
       </div>
     );
@@ -171,7 +171,7 @@ const ProjectDetail = () => {
           asChild
           className="-ml-2 h-8 w-fit px-2 text-muted-foreground hover:text-foreground"
         >
-          <Link to="/projects">
+          <Link to="/app/projects">
             <ArrowLeft className="mr-1.5 h-4 w-4" />
             Back to Projects
           </Link>
@@ -209,13 +209,13 @@ const ProjectDetail = () => {
               </Button>
             )}
             <Button variant="outline" asChild>
-              <Link to={`/projects/${project.id}/settings`}>
+              <Link to={`/app/projects/${project.id}/settings`}>
                 <Settings className="mr-2 h-4 w-4" />
                 Settings
               </Link>
             </Button>
             <Button asChild>
-              <Link to={`/projects/${project.id}/issues/new`}>
+              <Link to={`/app/projects/${project.id}/issues/new`}>
                 <Plus className="mr-2 h-4 w-4" />
                 Create Issue
               </Link>

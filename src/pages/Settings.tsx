@@ -12,9 +12,10 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useAdminCheck } from '@/hooks/useAdminCheck';
 import { RoleManagement } from '@/components/Admin/RoleManagement';
-import { 
-  Settings as SettingsIcon, Bell, Lock, Users, Palette, 
-  Calendar, Clock, Globe, Download, Trash2, Shield
+import { WorkspaceSettingsTab } from '@/components/Settings/WorkspaceSettingsTab';
+import {
+  Settings as SettingsIcon, Bell, Lock, Users, Palette,
+  Calendar, Clock, Globe, Download, Trash2, Shield, Building2
 } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import { ThemeToggle } from '@/components/Theme/ThemeToggle';
@@ -205,6 +206,10 @@ const Settings = () => {
 
       <Tabs defaultValue="appearance" className="space-y-6">
         <TabsList className="flex w-full flex-wrap justify-start gap-1">
+          <TabsTrigger value="workspace">
+            <Building2 className="mr-2 h-4 w-4" />
+            Workspace
+          </TabsTrigger>
           <TabsTrigger value="appearance">
             <Palette className="mr-2 h-4 w-4" />
             Appearance
@@ -232,6 +237,11 @@ const Settings = () => {
             Advanced
           </TabsTrigger>
         </TabsList>
+
+        {/* Workspace Tab */}
+        <TabsContent value="workspace" className="space-y-6">
+          <WorkspaceSettingsTab />
+        </TabsContent>
 
         {/* Appearance Tab */}
         <TabsContent value="appearance" className="space-y-6">

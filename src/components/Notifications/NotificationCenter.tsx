@@ -144,7 +144,12 @@ export function NotificationCenter() {
   const handleNotificationClick = (notification: Notification) => {
     markAsRead(notification.id);
     if (notification.link) {
-      navigate(notification.link);
+      // Notifications created before the workspace moved under /app may still
+      // have an un-prefixed link stored — normalize it rather than 404ing.
+      const isWorkspaceLink = /^\/(projects|issues|sprints|teams|announcements|reports|settings|profile-settings|calendar|content-calendar|media-library|analytics|my-tasks|time-log)(\/|$)/.test(
+        notification.link,
+      );
+      navigate(isWorkspaceLink ? `/app${notification.link}` : notification.link);
       setOpen(false);
     }
   };

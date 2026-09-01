@@ -301,7 +301,7 @@ const IssueDetail = () => {
             type: 'task_assigned',
             title: 'New task assigned to you',
             message: `You were assigned to "${values.title}".`,
-            link: `/issues/${issueId}`,
+            link: `/app/issues/${issueId}`,
             metadata: { issue_id: issueId },
           })),
         );
@@ -402,7 +402,7 @@ const IssueDetail = () => {
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <Button variant="ghost" size="sm" asChild>
-            <Link to={`/projects/${projectId}`}>
+            <Link to={`/app/projects/${projectId}`}>
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back to Project
             </Link>
@@ -685,7 +685,7 @@ const IssueDetail = () => {
             issueKey={issue.issue_key}
             issueTitle={issue.title}
             projectId={projectId || ''}
-            onDeleted={() => navigate(`/projects/${projectId}`)}
+            onDeleted={() => navigate(`/app/projects/${projectId}`)}
           />
         )}
         </div>

@@ -60,7 +60,7 @@ const Sprints = () => {
         )}
       </div>
 
-      <Tabs value={activeTab} onValueChange={(v) => navigate(`/sprints/${v}`)}>
+      <Tabs value={activeTab} onValueChange={(v) => navigate(`/app/sprints/${v}`)}>
         <TabsList>
           <TabsTrigger value="timeline">Timeline</TabsTrigger>
           <TabsTrigger value="board">Active Sprint Board</TabsTrigger>

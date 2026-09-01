@@ -14,6 +14,8 @@ import {
 import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useWorkspace } from '@/hooks/useWorkspace';
+import { projectPath } from '@/lib/utils';
 import { format, differenceInCalendarDays, subDays, isSameDay } from 'date-fns';
 import {
   PieChart, Pie, Cell, ResponsiveContainer, Legend, BarChart, Bar, XAxis, YAxis,
@@ -90,6 +92,7 @@ const initials = (name?: string | null, email?: string) =>
 
 const Dashboard = () => {
   const { user } = useAuth();
+  const { workspace } = useWorkspace();
   const [stats, setStats] = useState<DashboardStats>({
     totalProjects: 0, totalIssues: 0, completedIssues: 0, inProgressIssues: 0,
     reviewIssues: 0, todoIssues: 0, overdueIssues: 0, myTasks: 0, myOpenTasks: 0,
@@ -271,7 +274,17 @@ const Dashboard = () => {
       <div className="relative overflow-hidden rounded-2xl bg-gradient-brand bg-[length:200%_200%] animate-gradient-pan p-5 text-primary-foreground shadow-stat sm:p-6">
         <div className="relative z-10 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div className="min-w-0">
-            <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Dashboard</h1>
+            <div className="flex flex-wrap items-center gap-2">
+              <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Dashboard</h1>
+              {workspace && (
+                <span
+                  className="rounded-full bg-primary-foreground/15 px-2.5 py-1 font-mono text-xs font-bold tracking-[0.15em]"
+                  title={workspace.name}
+                >
+                  {workspace.code}
+                </span>
+              )}
+            </div>
             <p className="mt-1 text-sm text-primary-foreground/85 sm:text-base">
               {stats.myOpenTasks} open task{stats.myOpenTasks === 1 ? '' : 's'} assigned to you · {stats.completedThisWeek} completed across the team this week
             </p>
@@ -279,13 +292,13 @@ const Dashboard = () => {
           <div className="flex flex-wrap items-center gap-2">
             <TimerToggle variant="hero" />
             <Button variant="secondary" asChild>
-              <Link to="/my-tasks"><ListChecks className="mr-2 h-4 w-4" />My Tasks</Link>
+              <Link to="/app/my-tasks"><ListChecks className="mr-2 h-4 w-4" />My Tasks</Link>
             </Button>
             <Button variant="secondary" asChild>
-              <Link to="/issues/new"><Plus className="mr-2 h-4 w-4" />New Task</Link>
+              <Link to="/app/issues/new"><Plus className="mr-2 h-4 w-4" />New Task</Link>
             </Button>
             <Button variant="secondary" asChild>
-              <Link to="/projects/new"><FolderKanban className="mr-2 h-4 w-4" />New Project</Link>
+              <Link to="/app/projects/new"><FolderKanban className="mr-2 h-4 w-4" />New Project</Link>
             </Button>
           </div>
 
@@ -449,7 +462,7 @@ const Dashboard = () => {
               <CardDescription>Latest projects and their progress</CardDescription>
             </div>
             <Button variant="ghost" size="sm" asChild>
-              <Link to="/projects">View all <ArrowUpRight className="ml-1 h-4 w-4" /></Link>
+              <Link to="/app/projects">View all <ArrowUpRight className="ml-1 h-4 w-4" /></Link>
             </Button>
           </CardHeader>
           <CardContent>
@@ -457,12 +470,12 @@ const Dashboard = () => {
               <div className="flex flex-col items-center justify-center py-8 text-center">
                 <TrendingUp className="mb-4 h-12 w-12 text-muted-foreground" />
                 <h3 className="mb-2 text-lg font-semibold">No projects yet</h3>
-                <Button asChild><Link to="/projects/new"><Plus className="mr-2 h-4 w-4" />Create Project</Link></Button>
+                <Button asChild><Link to="/app/projects/new"><Plus className="mr-2 h-4 w-4" />Create Project</Link></Button>
               </div>
             ) : (
               <div className="divide-y">
                 {recentProjects.map(project => (
-                  <Link key={project.id} to={`/projects/${project.id}`} className="flex items-center gap-4 py-3 transition-colors hover:bg-muted/50">
+                  <Link key={project.id} to={projectPath(project.id, project.name)} className="flex items-center gap-4 py-3 transition-colors hover:bg-muted/50">
                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-sm font-bold text-primary">
                       {(project.key || project.name).slice(0, 2).toUpperCase()}
                     </div>
@@ -507,7 +520,7 @@ const Dashboard = () => {
                   const late = days < 0;
                   return (
                     <li key={task.id}>
-                      <Link to={`/issues/${task.id}`} className="flex items-center gap-3 py-3 transition-colors hover:bg-muted/50">
+                      <Link to={`/app/issues/${task.id}`} className="flex items-center gap-3 py-3 transition-colors hover:bg-muted/50">
                         <div className={`flex h-11 w-11 shrink-0 flex-col items-center justify-center rounded-lg border ${late ? 'border-destructive/30 bg-destructive/10 text-destructive' : 'border-primary/30 bg-primary/10 text-primary'}`}>
                           <span className="text-xs font-semibold uppercase leading-none">{format(new Date(task.due_date), 'MMM')}</span>
                           <span className="text-base font-bold leading-none">{format(new Date(task.due_date), 'd')}</span>
@@ -544,7 +557,7 @@ const Dashboard = () => {
             <CardDescription>Who is carrying what across the workspace</CardDescription>
           </div>
           <Button variant="ghost" size="sm" asChild>
-            <Link to="/teams">View team <ArrowUpRight className="ml-1 h-4 w-4" /></Link>
+            <Link to="/app/teams">View team <ArrowUpRight className="ml-1 h-4 w-4" /></Link>
           </Button>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -622,16 +635,16 @@ const Dashboard = () => {
         </CardHeader>
         <CardContent className="grid grid-cols-2 gap-3 md:grid-cols-4">
           <Button variant="outline" className="w-full justify-start" asChild>
-            <Link to="/projects/new"><Plus className="mr-2 h-4 w-4" />Create Project</Link>
+            <Link to="/app/projects/new"><Plus className="mr-2 h-4 w-4" />Create Project</Link>
           </Button>
           <Button variant="outline" className="w-full justify-start" asChild>
-            <Link to="/content-calendar"><Calendar className="mr-2 h-4 w-4" />Content Calendar</Link>
+            <Link to="/app/content-calendar"><Calendar className="mr-2 h-4 w-4" />Content Calendar</Link>
           </Button>
           <Button variant="outline" className="w-full justify-start" asChild>
-            <Link to="/teams"><Users className="mr-2 h-4 w-4" />View Teams</Link>
+            <Link to="/app/teams"><Users className="mr-2 h-4 w-4" />View Teams</Link>
           </Button>
           <Button variant="outline" className="w-full justify-start" asChild>
-            <Link to="/reports"><TrendingUp className="mr-2 h-4 w-4" />View Reports</Link>
+            <Link to="/app/reports"><TrendingUp className="mr-2 h-4 w-4" />View Reports</Link>
           </Button>
         </CardContent>
       </Card>

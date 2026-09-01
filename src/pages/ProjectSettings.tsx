@@ -13,6 +13,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useAdminCheck } from '@/hooks/useAdminCheck';
 import { useToast } from '@/hooks/use-toast';
 import { ProjectEdit } from '@/components/Project/ProjectEdit';
+import { projectPath } from '@/lib/utils';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -97,7 +98,7 @@ const ProjectSettings = () => {
         title: 'Project deleted',
         description: 'The project has been deleted successfully.',
       });
-      navigate('/projects');
+      navigate('/app/projects');
     } catch (error) {
       console.error('Error deleting project:', error);
       toast({
@@ -124,7 +125,7 @@ const ProjectSettings = () => {
       <div className="text-center py-16">
         <h2 className="text-2xl font-semibold">Project not found</h2>
         <Button asChild className="mt-4">
-          <Link to="/projects">Back to Projects</Link>
+          <Link to="/app/projects">Back to Projects</Link>
         </Button>
       </div>
     );
@@ -135,7 +136,7 @@ const ProjectSettings = () => {
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-4">
           <Button variant="ghost" size="sm" asChild>
-            <Link to={`/projects/${project.id}`}>
+            <Link to={projectPath(project.id, project.name)}>
               <ArrowLeft className="mr-2 h-4 w-4" />
               Back to Project
             </Link>

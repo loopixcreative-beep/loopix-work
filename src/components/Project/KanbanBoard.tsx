@@ -293,7 +293,7 @@ const KanbanBoard = ({ projectId }: KanbanBoardProps) => {
                   <Badge variant="secondary" className="text-xs">{allColumnIssues.length}</Badge>
                 </CardTitle>
                 <Button variant="ghost" size="sm" asChild>
-                  <Link to={`/projects/${projectId}/issues/new?status=${column.id}`}>
+                  <Link to={`/app/projects/${projectId}/issues/new?status=${column.id}`}>
                     <Plus className="h-4 w-4" />
                   </Link>
                 </Button>
@@ -325,7 +325,7 @@ const KanbanBoard = ({ projectId }: KanbanBoardProps) => {
                         <div className="min-w-0 space-y-1">
                           <span className="font-mono text-xs font-semibold text-primary">{issue.issue_key}</span>
                           <Link
-                            to={`/projects/${projectId}/issues/${issue.id}`}
+                            to={`/app/projects/${projectId}/issues/${issue.id}`}
                             className="line-clamp-2 block text-sm font-semibold leading-tight hover:underline"
                           >
                             {issue.title}
@@ -372,7 +372,7 @@ const KanbanBoard = ({ projectId }: KanbanBoardProps) => {
                 <div className="rounded-lg border border-dashed py-8 text-center text-muted-foreground">
                   <p className="text-sm">Drop tasks here</p>
                   <Button variant="ghost" size="sm" className="mt-2" asChild>
-                    <Link to={`/projects/${projectId}/issues/new?status=${column.id}`}>
+                    <Link to={`/app/projects/${projectId}/issues/new?status=${column.id}`}>
                       <Plus className="mr-1 h-4 w-4" />
                       Add issue
                     </Link>

@@ -247,7 +247,7 @@ export const SprintTimeline = () => {
                   {group.items.map((r) => (
                     <div key={r.id} className="flex border-b last:border-b-0 hover:bg-muted/30">
                       <div className="w-64 shrink-0 border-r px-3 py-2">
-                        <Link to={`/issues/${r.id}`} className="block truncate text-sm font-semibold hover:text-primary">
+                        <Link to={`/app/issues/${r.id}`} className="block truncate text-sm font-semibold hover:text-primary">
                           {r.title}
                         </Link>
                         <div className="mt-0.5 flex items-center gap-1.5 text-[0.7rem] text-muted-foreground">

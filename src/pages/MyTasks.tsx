@@ -204,7 +204,7 @@ const MyTasks = () => {
                 <div className="min-w-[220px] flex-1">
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="font-mono text-xs font-bold text-primary">{task.issue_key}</span>
-                    <Link to={`/issues/${task.id}`} className="font-semibold hover:underline">
+                    <Link to={`/app/issues/${task.id}`} className="font-semibold hover:underline">
                       {task.title}
                     </Link>
                   </div>
@@ -232,7 +232,7 @@ const MyTasks = () => {
                   </Button>
                 )}
                 <Button size="sm" variant="ghost" asChild>
-                  <Link to={`/issues/${task.id}`}>
+                  <Link to={`/app/issues/${task.id}`}>
                     View <ArrowUpRight className="ml-1 h-3.5 w-3.5" />
                   </Link>
                 </Button>

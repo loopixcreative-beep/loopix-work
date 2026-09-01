@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Plus, Search, Filter, User, AlertCircle, Clock } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
 
 interface Issue {
@@ -39,6 +39,7 @@ interface IssuesListProps {
 }
 
 const IssuesList = ({ projectId }: IssuesListProps) => {
+  const navigate = useNavigate();
   const [issues, setIssues] = useState<Issue[]>([]);
   const [filteredIssues, setFilteredIssues] = useState<Issue[]>([]);
   const [loading, setLoading] = useState(true);
@@ -164,7 +165,7 @@ const IssuesList = ({ projectId }: IssuesListProps) => {
             <Badge variant="secondary">{filteredIssues.length}</Badge>
           </CardTitle>
           <Button asChild>
-            <Link to={`/projects/${projectId}/issues/new`}>
+            <Link to={`/app/projects/${projectId}/issues/new`}>
               <Plus className="mr-2 h-4 w-4" />
               Create Issue
             </Link>
@@ -216,7 +217,7 @@ const IssuesList = ({ projectId }: IssuesListProps) => {
           <div className="text-center py-8">
             <p className="text-muted-foreground">No issues found</p>
             <Button variant="outline" className="mt-4" asChild>
-              <Link to={`/projects/${projectId}/issues/new`}>
+              <Link to={`/app/projects/${projectId}/issues/new`}>
                 <Plus className="mr-2 h-4 w-4" />
                 Create your first issue
               </Link>
@@ -239,7 +240,7 @@ const IssuesList = ({ projectId }: IssuesListProps) => {
             </TableHeader>
             <TableBody>
               {filteredIssues.map((issue) => (
-                <TableRow key={issue.id} className="cursor-pointer hover:bg-muted/50" onClick={() => window.location.href = `/projects/${projectId}/issues/${issue.id}`}>
+                <TableRow key={issue.id} className="cursor-pointer hover:bg-muted/50" onClick={() => navigate(`/app/projects/${projectId}/issues/${issue.id}`)}>
                   <TableCell>{getTypeIcon(issue.issue_type)}</TableCell>
                   <TableCell>
                     <span className="font-mono text-sm font-medium text-primary">

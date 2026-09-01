@@ -15,6 +15,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { friendlyErrorMessage } from '@/lib/errors';
+import { projectPath } from '@/lib/utils';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 
 const projectSchema = z.object({
@@ -136,7 +137,7 @@ const CreateProject = () => {
         description: `Project "${values.name}" has been created successfully.`,
       });
 
-      navigate(`/projects/${project.id}`);
+      navigate(projectPath(project.id, values.name));
     } catch (error: any) {
       toast({
         title: "Error",
@@ -152,7 +153,7 @@ const CreateProject = () => {
     <div className="space-y-6">
       <div className="flex items-center space-x-4">
         <Button variant="ghost" size="sm" asChild>
-          <Link to="/projects">
+          <Link to="/app/projects">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Projects
           </Link>

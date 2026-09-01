@@ -13,6 +13,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { UserAvatar } from '@/components/ui/user-avatar';
 import { useToast } from '@/hooks/use-toast';
 import { friendlyErrorMessage } from '@/lib/errors';
+import { projectPath } from '@/lib/utils';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { format } from 'date-fns';
@@ -136,7 +137,7 @@ const Projects = () => {
                 <div className="flex items-start justify-between">
                   <div className="space-y-1">
                     <CardTitle className="text-lg font-semibold group-hover:text-primary transition-colors">
-                      <Link to={`/projects/${project.id}`}>
+                      <Link to={projectPath(project.id, project.name)}>
                         {project.name}
                       </Link>
                     </CardTitle>
@@ -163,13 +164,13 @@ const Projects = () => {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem asChild>
-                        <Link to={`/projects/${project.id}`}>View Project</Link>
+                        <Link to={projectPath(project.id, project.name)}>View Project</Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
-                        <Link to={`/projects/${project.id}/board`}>Open Board</Link>
+                        <Link to={projectPath(project.id, project.name)}>Open Board</Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
-                        <Link to={`/projects/${project.id}/settings`}>Settings</Link>
+                        <Link to={`/app/projects/${project.id}/settings`}>Settings</Link>
                       </DropdownMenuItem>
                       {canCloseProject(project) && (
                         <>
@@ -334,7 +335,7 @@ const Projects = () => {
           </p>
         </div>
         <Button asChild>
-          <Link to="/projects/new">
+          <Link to="/app/projects/new">
             <Plus className="mr-2 h-4 w-4" />
             New Project
           </Link>
@@ -365,7 +366,7 @@ const Projects = () => {
                 Create a new project or reopen a closed one to get started.
               </p>
               <Button className="mt-4" asChild>
-                <Link to="/projects/new">
+                <Link to="/app/projects/new">
                   <Plus className="mr-2 h-4 w-4" />
                   Create a project
                 </Link>

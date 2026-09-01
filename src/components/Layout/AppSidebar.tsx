@@ -1,4 +1,4 @@
-import { Home, FolderKanban, Users, BarChart3, Calendar as CalendarIcon, Settings, Plus, Search, ImageIcon, CalendarDays, TrendingUp, ChevronRight, Archive, Gauge, ListChecks, Timer, Megaphone } from 'lucide-react';
+import { Home, FolderKanban, Users, User, BarChart3, Calendar as CalendarIcon, Settings, Plus, Search, ImageIcon, CalendarDays, TrendingUp, ChevronRight, Archive, Gauge, ListChecks, Timer, Megaphone } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarMenuSub, SidebarMenuSubItem, SidebarMenuSubButton, SidebarGroup, SidebarGroupContent, SidebarGroupLabel } from '@/components/ui/sidebar';
@@ -10,19 +10,20 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { GlobalSearch } from '@/components/Layout/GlobalSearch';
 import { useUnreadNotificationType } from '@/hooks/useUnreadNotificationType';
+import { projectPath } from '@/lib/utils';
 
 const navigation = [
-  { name: 'Dashboard', href: '/', icon: Home },
-  { name: 'My Tasks', href: '/my-tasks', icon: ListChecks },
-  { name: 'Sprints', href: '/sprints/timeline', icon: Gauge },
-  { name: 'Time Log', href: '/time-log', icon: Timer },
-  { name: 'Teams', href: '/teams', icon: Users },
-  { name: 'Announcements', href: '/announcements', icon: Megaphone },
-  { name: 'Calendar', href: '/calendar', icon: CalendarIcon },
-  { name: 'Content Calendar', href: '/content-calendar', icon: CalendarDays },
-  { name: 'Media Library', href: '/media-library', icon: ImageIcon },
-  { name: 'Analytics', href: '/analytics', icon: TrendingUp },
-  { name: 'Reports', href: '/reports', icon: BarChart3 },
+  { name: 'Dashboard', href: '/app', icon: Home },
+  { name: 'My Tasks', href: '/app/my-tasks', icon: ListChecks },
+  { name: 'Sprints', href: '/app/sprints/timeline', icon: Gauge },
+  { name: 'Time Log', href: '/app/time-log', icon: Timer },
+  { name: 'Teams', href: '/app/teams', icon: Users },
+  { name: 'Announcements', href: '/app/announcements', icon: Megaphone },
+  { name: 'Calendar', href: '/app/calendar', icon: CalendarIcon },
+  { name: 'Content Calendar', href: '/app/content-calendar', icon: CalendarDays },
+  { name: 'Media Library', href: '/app/media-library', icon: ImageIcon },
+  { name: 'Analytics', href: '/app/analytics', icon: TrendingUp },
+  { name: 'Reports', href: '/app/reports', icon: BarChart3 },
 ];
 
 
@@ -34,7 +35,7 @@ export const AppSidebar = () => {
   const [fullName, setFullName] = useState<string>('');
   const [searchOpen, setSearchOpen] = useState(false);
   const [projects, setProjects] = useState<{ id: string; name: string; key: string | null; status: string | null }[]>([]);
-  const [projectsOpen, setProjectsOpen] = useState(location.pathname.startsWith('/projects'));
+  const [projectsOpen, setProjectsOpen] = useState(location.pathname.startsWith('/app/projects'));
   const [closedOpen, setClosedOpen] = useState(false);
   const [noActiveSprint, setNoActiveSprint] = useState(false);
   const hasUnreadAnnouncements = useUnreadNotificationType('announcement');
@@ -56,7 +57,7 @@ export const AppSidebar = () => {
   };
 
   useEffect(() => {
-    if (location.pathname.startsWith('/projects')) setProjectsOpen(true);
+    if (location.pathname.startsWith('/app/projects')) setProjectsOpen(true);
   }, [location.pathname]);
 
   const fetchProjects = async () => {
@@ -95,28 +96,28 @@ export const AppSidebar = () => {
   };
 
   return (
-    <Sidebar>
+    <Sidebar collapsible="icon">
       <SidebarHeader className="px-4 py-4">
-        <Link to="/" className="flex items-center gap-2">
+        <Link to="/app" className="flex items-center gap-2">
           <img
             src="https://res.cloudinary.com/dkk7zqgnz/image/upload/v1785424794/Loopix_final_ibeklc.png"
             alt="Loopix Kaam logo"
-            className="h-9 w-9 rounded-lg object-contain"
+            className="h-9 w-9 shrink-0 rounded-lg object-contain"
           />
-          <span className="text-xl font-bold">Kaam</span>
+          <span className="text-xl font-bold group-data-[collapsible=icon]:hidden">Kaam</span>
         </Link>
       </SidebarHeader>
 
 
       <SidebarContent className="px-2">
-        <div className="px-2 pb-4">
+        <div className="px-2 pb-4 group-data-[collapsible=icon]:px-0">
           <Button
             variant="outline"
-            className="w-full justify-start"
+            className="w-full justify-start group-data-[collapsible=icon]:mx-auto group-data-[collapsible=icon]:size-8 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-0"
             onClick={() => setSearchOpen(true)}
           >
-            <Search className="mr-2 h-4 w-4" />
-            <span>Search...</span>
+            <Search className="h-4 w-4 group-data-[collapsible=icon]:mr-0" />
+            <span className="ml-2 group-data-[collapsible=icon]:hidden">Search...</span>
           </Button>
           <GlobalSearch open={searchOpen} onOpenChange={setSearchOpen} />
         </div>
@@ -125,15 +126,15 @@ export const AppSidebar = () => {
           <SidebarGroupContent>
             <SidebarMenu>
               {navigation.map((item, index) => {
-                const isActive = item.href === '/sprints/timeline'
-                  ? location.pathname.startsWith('/sprints')
+                const isActive = item.href === '/app/sprints/timeline'
+                  ? location.pathname.startsWith('/app/sprints')
                   : location.pathname === item.href;
                 const showSprintDot = item.name === 'Sprints' && noActiveSprint;
                 const showAnnouncementDot = item.name === 'Announcements' && hasUnreadAnnouncements;
                 const navItem = (
                   <SidebarMenuItem key={item.name}>
                     <SidebarMenuButton asChild isActive={isActive}>
-                      <Link to={item.href} className="flex items-center space-x-3">
+                      <Link to={item.href}>
                         <item.icon className="h-4 w-4" />
                         <span>{item.name}</span>
                         {showSprintDot && (
@@ -162,7 +163,7 @@ export const AppSidebar = () => {
                     <Collapsible open={projectsOpen} onOpenChange={setProjectsOpen}>
                       <SidebarMenuItem>
                         <CollapsibleTrigger asChild>
-                          <SidebarMenuButton isActive={location.pathname === '/projects'}>
+                          <SidebarMenuButton isActive={location.pathname === '/app/projects'}>
                             <FolderKanban className="h-4 w-4" />
                             <span className="flex-1 text-left">Projects</span>
                             <ChevronRight
@@ -177,9 +178,9 @@ export const AppSidebar = () => {
                             <SidebarMenuSubItem>
                               <SidebarMenuSubButton
                                 asChild
-                                isActive={location.pathname === '/projects'}
+                                isActive={location.pathname === '/app/projects'}
                               >
-                                <Link to="/projects">All projects</Link>
+                                <Link to="/app/projects">All projects</Link>
                               </SidebarMenuSubButton>
                             </SidebarMenuSubItem>
                             {activeProjects.map((project, i) => (
@@ -190,9 +191,9 @@ export const AppSidebar = () => {
                               >
                                 <SidebarMenuSubButton
                                   asChild
-                                  isActive={location.pathname === `/projects/${project.id}`}
+                                  isActive={location.pathname.startsWith(`/app/projects/${project.id}`)}
                                 >
-                                  <Link to={`/projects/${project.id}`} className="flex items-center gap-2">
+                                  <Link to={projectPath(project.id, project.name)} className="flex items-center gap-2">
                                     <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-chart-2" />
                                     <span className="truncate">{project.name}</span>
                                     {project.key && (
@@ -236,10 +237,10 @@ export const AppSidebar = () => {
                                       >
                                         <SidebarMenuSubButton
                                           asChild
-                                          isActive={location.pathname === `/projects/${project.id}`}
+                                          isActive={location.pathname.startsWith(`/app/projects/${project.id}`)}
                                         >
                                           <Link
-                                            to={`/projects/${project.id}`}
+                                            to={projectPath(project.id, project.name)}
                                             className="flex items-center gap-2 opacity-70"
                                           >
                                             <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-muted-foreground" />
@@ -275,7 +276,7 @@ export const AppSidebar = () => {
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <Link to="/projects/new" className="flex items-center space-x-3">
+                  <Link to="/app/projects/new">
                     <Plus className="h-4 w-4" />
                     <span>Create Project</span>
                   </Link>
@@ -289,14 +290,14 @@ export const AppSidebar = () => {
       <SidebarFooter className="p-4">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="w-full justify-start space-x-2">
-              <Avatar className="h-8 w-8">
+            <Button variant="ghost" className="w-full justify-start space-x-2 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:space-x-0 group-data-[collapsible=icon]:px-0">
+              <Avatar className="h-8 w-8 shrink-0">
                 <AvatarImage src={avatarUrl} />
                 <AvatarFallback>
                   {fullName?.charAt(0)?.toUpperCase() || user?.email?.charAt(0).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
-              <div className="flex flex-col items-start overflow-hidden">
+              <div className="flex flex-col items-start overflow-hidden group-data-[collapsible=icon]:hidden">
                 <span className="truncate text-sm font-medium">
                   {fullName || user?.user_metadata?.full_name || user?.email}
                 </span>
@@ -308,8 +309,14 @@ export const AppSidebar = () => {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
             <DropdownMenuItem asChild>
-              <Link to="/profile-settings">
+              <Link to="/app/settings">
                 <Settings className="mr-2 h-4 w-4" />
+                Settings
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link to="/app/profile-settings">
+                <User className="mr-2 h-4 w-4" />
                 Profile Settings
               </Link>
             </DropdownMenuItem>

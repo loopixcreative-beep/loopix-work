@@ -210,7 +210,7 @@ export const SprintBoard = ({ projectId, canManage }: Props) => {
 
     setCompleteOpen(false);
     toast({ title: 'Sprint completed', description: `${sprint.name} wrapped up.` });
-    navigate(`/sprints/reports?sprint=${sprint.id}`);
+    navigate(`/app/sprints/reports?sprint=${sprint.id}`);
   };
 
   if (loading) return <div className="h-64 animate-pulse rounded-xl bg-muted" />;
@@ -225,7 +225,7 @@ export const SprintBoard = ({ projectId, canManage }: Props) => {
             Tasks flow in from your projects. Start a sprint from the project to see the board here.
           </p>
           <Button asChild className="mt-4">
-            <Link to="/sprints/timeline">View Timeline</Link>
+            <Link to="/app/sprints/timeline">View Timeline</Link>
           </Button>
 
         </CardContent>
@@ -334,7 +334,7 @@ export const SprintBoard = ({ projectId, canManage }: Props) => {
         <CardContent className="p-4">
           <div className="mb-2 flex items-center justify-between">
             <h3 className="text-sm font-bold">Burndown trend</h3>
-            <Link to="/sprints/reports" className="text-xs font-semibold text-primary hover:underline">
+            <Link to="/app/sprints/reports" className="text-xs font-semibold text-primary hover:underline">
               View full report
             </Link>
           </div>

@@ -30,7 +30,7 @@ export const SprintTaskCard = ({ task, draggable, onDragStart, onDragEnd, stale,
     >
       <div className="flex items-start gap-2">
         <Link
-          to={`/issues/${task.id}`}
+          to={`/app/issues/${task.id}`}
           className="min-w-0 flex-1 text-sm font-semibold leading-snug hover:text-primary"
         >
           {task.title}
