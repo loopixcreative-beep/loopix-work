@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,9 +8,10 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Save, Trash2 } from 'lucide-react';
+import { ArrowLeft, Save, Trash2, Wallet } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useWorkspace } from '@/hooks/useWorkspace';
 import { useAdminCheck } from '@/hooks/useAdminCheck';
 import { useToast } from '@/hooks/use-toast';
 import { ProjectEdit } from '@/components/Project/ProjectEdit';
@@ -40,10 +42,17 @@ const ProjectSettings = () => {
   const { projectId } = useParams();
   const { user } = useAuth();
   const { isAdmin } = useAdminCheck();
+  const { workspace, role } = useWorkspace();
+  const canSelectMain = role === 'admin' || role === 'superadmin';
+  const canViewMain = canSelectMain || role === 'manager';
   const { toast } = useToast();
   const navigate = useNavigate();
   const [project, setProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
+  const [mainProjectId, setMainProjectId] = useState<string | null>(null);
+  const [businessLedgerId, setBusinessLedgerId] = useState<string | null>(null);
+  const [accountSetupError, setAccountSetupError] = useState<string | null>(null);
+  const [savingMain, setSavingMain] = useState(false);
   const [settings, setSettings] = useState({
     emailNotifications: true,
     slackIntegration: false,
@@ -56,12 +65,43 @@ const ProjectSettings = () => {
   });
 
   useEffect(() => {
-    if (projectId) {
-      fetchProject();
-    }
-  }, [projectId]);
+    if (!workspace?.id || !canViewMain) return;
+    const db = supabase as unknown as SupabaseClient;
+    db.from('account_ledgers').select('id,main_project_id').eq('workspace_id', workspace.id).is('project_id', null)
+      .maybeSingle().then(({ data, error }) => {
+        if (error) { setAccountSetupError(error.message); toast({ title: 'Could not load main project', description: error.message, variant: 'destructive' }); }
+        else { setAccountSetupError(null); setBusinessLedgerId(data?.id ?? null); setMainProjectId(data?.main_project_id ?? null); }
+      });
+  }, [workspace?.id, canViewMain, toast]);
 
-  const fetchProject = async () => {
+  const selectMainProject = async () => {
+    if (!project || !workspace || !canSelectMain) return;
+    setSavingMain(true);
+    const db = supabase as unknown as SupabaseClient;
+    let id = businessLedgerId;
+    if (!id) {
+      const created = await db.from('account_ledgers').insert({ workspace_id: workspace.id, project_id: null, name: 'Business account' }).select('id').single();
+      if (created.error?.code === '23505') {
+        id = (await db.from('account_ledgers').select('id').eq('workspace_id', workspace.id).is('project_id', null).single()).data?.id ?? null;
+      } else if (created.error) {
+        setSavingMain(false);
+        toast({ title: 'Could not prepare account', description: created.error.message, variant: 'destructive' });
+        return;
+      } else id = created.data?.id ?? null;
+    }
+    if (!id) {
+      setSavingMain(false);
+      toast({ title: 'Could not find account settings', variant: 'destructive' });
+      return;
+    }
+    const next = mainProjectId === project.id ? null : project.id;
+    const { error } = await db.from('account_ledgers').update({ main_project_id: next }).eq('id', id);
+    setSavingMain(false);
+    if (error) toast({ title: 'Could not update main project', description: error.message, variant: 'destructive' });
+    else { setBusinessLedgerId(id); setMainProjectId(next); toast({ title: next ? 'Main project selected' : 'Main project cleared' }); }
+  };
+
+  const fetchProject = useCallback(async () => {
     try {
       const { data, error } = await supabase
         .from('projects')
@@ -81,7 +121,11 @@ const ProjectSettings = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [projectId, toast]);
+
+  useEffect(() => {
+    if (projectId) void fetchProject();
+  }, [projectId, fetchProject]);
 
   const handleDeleteProject = async () => {
     if (!project || !isAdmin) return;
@@ -155,11 +199,21 @@ const ProjectSettings = () => {
           <TabsTrigger value="integrations">Integrations</TabsTrigger>
           <TabsTrigger value="automation">Automation</TabsTrigger>
           <TabsTrigger value="permissions">Permissions</TabsTrigger>
+          <TabsTrigger value="account"><Wallet className="mr-2 h-4 w-4" />Account</TabsTrigger>
           {isAdmin && <TabsTrigger value="danger">Danger Zone</TabsTrigger>}
         </TabsList>
 
         <TabsContent value="general" className="space-y-4">
           <ProjectEdit project={project} onUpdate={fetchProject} />
+        </TabsContent>
+
+        <TabsContent value="account" className="space-y-4">
+          <Card><CardHeader><CardTitle>Main project account</CardTitle><CardDescription>One project per workspace can be the main account. Its Account tab automatically shows transactions and amounts due from every project, with no re-entry.</CardDescription></CardHeader>
+            <CardContent className="space-y-3">
+              {accountSetupError && <p className="rounded-md border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">Account database setup is required: {accountSetupError}</p>}
+              <p className="text-sm">{mainProjectId === project.id ? 'This is the main project.' : mainProjectId ? 'Another project is currently the main project.' : 'No main project is selected.'}</p>
+              {canSelectMain ? <Button onClick={selectMainProject} disabled={savingMain || !!accountSetupError}>{savingMain ? 'Saving…' : mainProjectId === project.id ? 'Remove main project' : 'Make this the main project'}</Button> : <p className="text-sm text-muted-foreground">Only workspace admins can change this setting.</p>}
+            </CardContent></Card>
         </TabsContent>
 
         <TabsContent value="notifications" className="space-y-4">

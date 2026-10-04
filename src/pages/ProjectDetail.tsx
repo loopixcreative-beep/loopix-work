@@ -19,6 +19,7 @@ import SprintManagement from '@/components/Project/SprintManagement';
 import ProjectInvitations from '@/components/Project/ProjectInvitations';
 import ProjectMembers from '@/components/Project/ProjectMembers';
 import ProjectReports from '@/components/Project/ProjectReports';
+import ProjectAccount from '@/components/Project/ProjectAccount';
 
 interface Project {
   id: string;
@@ -43,7 +44,7 @@ interface Project {
 }
 
 const ProjectDetail = () => {
-  const { projectId } = useParams();
+  const { projectId, slug } = useParams();
   const { user } = useAuth();
   const { canManageAll } = useUserRoles();
   const { toast } = useToast();
@@ -271,13 +272,14 @@ const ProjectDetail = () => {
       </div>
 
       {/* Main Content */}
-      <Tabs defaultValue="board" className="space-y-4">
+      <Tabs defaultValue={slug === 'account' ? 'account' : 'board'} className="space-y-4">
         <TabsList>
           <TabsTrigger value="board">Board</TabsTrigger>
           <TabsTrigger value="issues">Issues</TabsTrigger>
           {project.type === 'scrum' && <TabsTrigger value="sprints">Sprints</TabsTrigger>}
           <TabsTrigger value="team">Team</TabsTrigger>
           <TabsTrigger value="reports">Reports</TabsTrigger>
+          <TabsTrigger value="account">Account</TabsTrigger>
         </TabsList>
         
         <TabsContent value="board" className="space-y-4">
@@ -301,6 +303,9 @@ const ProjectDetail = () => {
         
         <TabsContent value="reports" className="space-y-4">
           <ProjectReports projectId={project.id} />
+        </TabsContent>
+        <TabsContent value="account" className="space-y-4">
+          <ProjectAccount projectId={project.id} />
         </TabsContent>
       </Tabs>
     </div>

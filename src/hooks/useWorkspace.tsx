@@ -42,6 +42,7 @@ const WorkspaceContext = createContext<WorkspaceContextValue | null>(null);
 
 export const WorkspaceProvider = ({ children }: { children: React.ReactNode }) => {
   const { user } = useAuth();
+  const userId = user?.id;
   const [workspace, setWorkspace] = useState<Workspace | null>(null);
   const [role, setRole] = useState<WorkspaceRole | null>(null);
   const [loading, setLoading] = useState(true);
@@ -49,7 +50,7 @@ export const WorkspaceProvider = ({ children }: { children: React.ReactNode }) =
   const [membersLoading, setMembersLoading] = useState(false);
 
   const refresh = useCallback(async () => {
-    if (!user) {
+    if (!userId) {
       setWorkspace(null);
       setRole(null);
       setLoading(false);
@@ -67,7 +68,7 @@ export const WorkspaceProvider = ({ children }: { children: React.ReactNode }) =
 
     const [{ data: ws }, { data: membership }] = await Promise.all([
       supabase.from('workspaces').select('id, name, code').eq('id', wsId).maybeSingle(),
-      supabase.from('workspace_members').select('role').eq('user_id', user.id).maybeSingle(),
+      supabase.from('workspace_members').select('role').eq('user_id', userId).maybeSingle(),
     ]);
 
     setWorkspace(ws ?? null);
@@ -77,7 +78,7 @@ export const WorkspaceProvider = ({ children }: { children: React.ReactNode }) =
     // Best-effort: renew the workspace's inactivity clock now that we know
     // someone with access actually opened the app.
     supabase.rpc('touch_workspace_activity').then(() => {});
-  }, [user]);
+  }, [userId]);
 
   useEffect(() => {
     refresh();

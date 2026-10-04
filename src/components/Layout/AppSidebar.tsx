@@ -1,4 +1,5 @@
-import { Home, FolderKanban, Users, User, BarChart3, Calendar as CalendarIcon, Settings, Plus, Search, ImageIcon, CalendarDays, TrendingUp, ChevronRight, Archive, Gauge, ListChecks, Timer, Megaphone } from 'lucide-react';
+import { Home, FolderKanban, Users, User, BarChart3, Calendar as CalendarIcon, Settings, Plus, Search, ImageIcon, CalendarDays, TrendingUp, ChevronRight, Archive, Gauge, ListChecks, Timer, Megaphone, Wallet } from 'lucide-react';
+import { useWorkspace } from '@/hooks/useWorkspace';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarMenuSub, SidebarMenuSubItem, SidebarMenuSubButton, SidebarGroup, SidebarGroupContent, SidebarGroupLabel } from '@/components/ui/sidebar';
@@ -31,6 +32,7 @@ const navigation = [
 export const AppSidebar = () => {
   const location = useLocation();
   const { user, signOut } = useAuth();
+  const { role } = useWorkspace();
   const [avatarUrl, setAvatarUrl] = useState<string>('');
   const [fullName, setFullName] = useState<string>('');
   const [searchOpen, setSearchOpen] = useState(false);
@@ -125,7 +127,7 @@ export const AppSidebar = () => {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
-              {navigation.map((item, index) => {
+              {([...navigation, ...(['superadmin', 'admin', 'manager'].includes(role ?? '') ? [{ name: 'Accounts', href: '/app/accounts', icon: Wallet }] : [])]).map((item, index) => {
                 const isActive = item.href === '/app/sprints/timeline'
                   ? location.pathname.startsWith('/app/sprints')
                   : location.pathname === item.href;

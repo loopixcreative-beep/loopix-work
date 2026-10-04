@@ -15,6 +15,7 @@ import Projects from "./pages/Projects";
 import Teams from "./pages/Teams";
 import Announcements from "./pages/Announcements";
 import Reports from "./pages/Reports";
+import Accounts from "./pages/Accounts";
 import CreateProject from "./pages/CreateProject";
 import ProjectDetail from "./pages/ProjectDetail";
 import ProjectSettings from "./pages/ProjectSettings";
@@ -43,9 +44,9 @@ const queryClient = new QueryClient();
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading: authLoading } = useAuth();
-  const { needsSetup, loading: workspaceLoading } = useWorkspace();
+  const { workspace, needsSetup, loading: workspaceLoading } = useWorkspace();
 
-  if (authLoading || (user && workspaceLoading)) {
+  if (authLoading || (user && workspaceLoading && !workspace)) {
     return <div className="flex min-h-screen items-center justify-center">Loading...</div>;
   }
 
@@ -68,7 +69,7 @@ const WorkspaceSetupRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading: authLoading } = useAuth();
   const { workspace, loading: workspaceLoading } = useWorkspace();
 
-  if (authLoading || (user && workspaceLoading)) {
+  if (authLoading || (user && workspaceLoading && !workspace)) {
     return <div className="flex min-h-screen items-center justify-center">Loading...</div>;
   }
 
@@ -88,9 +89,9 @@ const WorkspaceSetupRoute = ({ children }: { children: React.ReactNode }) => {
 // distinct URL space for every authenticated page.
 const RootRoute = () => {
   const { user, loading: authLoading } = useAuth();
-  const { needsSetup, loading: workspaceLoading } = useWorkspace();
+  const { workspace, needsSetup, loading: workspaceLoading } = useWorkspace();
 
-  if (authLoading || (user && workspaceLoading)) {
+  if (authLoading || (user && workspaceLoading && !workspace)) {
     return <div className="flex min-h-screen items-center justify-center">Loading...</div>;
   }
 
@@ -162,6 +163,9 @@ const App = () => (
               <ProtectedRoute>
                 <Reports />
               </ProtectedRoute>
+            } />
+            <Route path="/app/accounts" element={
+              <ProtectedRoute><Accounts /></ProtectedRoute>
             } />
             <Route path="/app/projects/new" element={
               <ProtectedRoute>
