@@ -41,7 +41,8 @@ interface WorkspaceContextValue {
 const WorkspaceContext = createContext<WorkspaceContextValue | null>(null);
 
 export const WorkspaceProvider = ({ children }: { children: React.ReactNode }) => {
-  const { user } = useAuth();
+  // const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const userId = user?.id;
   const [workspace, setWorkspace] = useState<Workspace | null>(null);
   const [role, setRole] = useState<WorkspaceRole | null>(null);
@@ -49,40 +50,92 @@ export const WorkspaceProvider = ({ children }: { children: React.ReactNode }) =
   const [members, setMembers] = useState<WorkspaceMember[]>([]);
   const [membersLoading, setMembersLoading] = useState(false);
 
+  // const refresh = useCallback(async () => {
+  //   if (!userId) {
+  //     setWorkspace(null);
+  //     setRole(null);
+  //     setLoading(false);
+  //     return;
+  //   }
+  //   setLoading(true);
+
+  //   const { data: wsId } = await supabase.rpc('current_workspace_id');
+  //   if (!wsId) {
+  //     setWorkspace(null);
+  //     setRole(null);
+  //     setLoading(false);
+  //     return;
+  //   }
+
+  //   const [{ data: ws }, { data: membership }] = await Promise.all([
+  //     supabase.from('workspaces').select('id, name, code').eq('id', wsId).maybeSingle(),
+  //     supabase.from('workspace_members').select('role').eq('user_id', userId).maybeSingle(),
+  //   ]);
+
+  //   setWorkspace(ws ?? null);
+  //   setRole((membership?.role as WorkspaceRole) ?? null);
+  //   setLoading(false);
+
+  //   // Best-effort: renew the workspace's inactivity clock now that we know
+  //   // someone with access actually opened the app.
+  //   supabase.rpc('touch_workspace_activity').then(() => {});
+  // }, [userId]);
+
+
   const refresh = useCallback(async () => {
-    if (!userId) {
-      setWorkspace(null);
-      setRole(null);
-      setLoading(false);
-      return;
-    }
-    setLoading(true);
+  if (authLoading) {
+    return;
+  }
 
-    const { data: wsId } = await supabase.rpc('current_workspace_id');
-    if (!wsId) {
-      setWorkspace(null);
-      setRole(null);
-      setLoading(false);
-      return;
-    }
-
-    const [{ data: ws }, { data: membership }] = await Promise.all([
-      supabase.from('workspaces').select('id, name, code').eq('id', wsId).maybeSingle(),
-      supabase.from('workspace_members').select('role').eq('user_id', userId).maybeSingle(),
-    ]);
-
-    setWorkspace(ws ?? null);
-    setRole((membership?.role as WorkspaceRole) ?? null);
+  if (!userId) {
+    setWorkspace(null);
+    setRole(null);
     setLoading(false);
+    return;
+  }
 
-    // Best-effort: renew the workspace's inactivity clock now that we know
-    // someone with access actually opened the app.
-    supabase.rpc('touch_workspace_activity').then(() => {});
-  }, [userId]);
+  setLoading(true);
+
+  const { data: wsId } = await supabase.rpc('current_workspace_id');
+
+  if (!wsId) {
+    setWorkspace(null);
+    setRole(null);
+    setLoading(false);
+    return;
+  }
+
+  const [{ data: ws }, { data: membership }] = await Promise.all([
+    supabase
+      .from('workspaces')
+      .select('id, name, code')
+      .eq('id', wsId)
+      .maybeSingle(),
+
+    supabase
+      .from('workspace_members')
+      .select('role')
+      .eq('user_id', userId)
+      .maybeSingle(),
+  ]);
+
+  setWorkspace(ws ?? null);
+  setRole((membership?.role as WorkspaceRole) ?? null);
+  setLoading(false);
+
+  supabase.rpc('touch_workspace_activity').then(() => {});
+}, [userId, authLoading]);
+
+
+  // useEffect(() => {
+  //   refresh();
+  // }, [refresh]);
 
   useEffect(() => {
+  if (!authLoading) {
     refresh();
-  }, [refresh]);
+  }
+}, [authLoading, refresh]);
 
   const refreshMembers = useCallback(async () => {
     if (!workspace) {

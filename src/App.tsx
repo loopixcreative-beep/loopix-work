@@ -46,21 +46,44 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading: authLoading } = useAuth();
   const { workspace, needsSetup, loading: workspaceLoading } = useWorkspace();
 
-  if (authLoading || (user && workspaceLoading && !workspace)) {
+  // if (authLoading || (user && workspaceLoading && !workspace)) {
+  //   return <div className="flex min-h-screen items-center justify-center">Loading...</div>;
+  // }
+
+  // if (!user) {
+  //   return <Navigate to="/auth" replace />;
+  // }
+
+  // // Signed in but hasn't created/joined a workspace yet — nothing else in
+  // // the app is reachable until that's resolved.
+  // if (needsSetup) {
+  //   return <Navigate to="/app/workspace-setup" replace />;
+  // }
+
+  // return <MainLayout>{children}</MainLayout>;
+
+  if (authLoading) {
     return <div className="flex min-h-screen items-center justify-center">Loading...</div>;
-  }
+ 
+}
 
-  if (!user) {
-    return <Navigate to="/auth" replace />;
-  }
+if (!user) {
+  return <Navigate to="/auth" replace />;
+}
 
-  // Signed in but hasn't created/joined a workspace yet — nothing else in
-  // the app is reachable until that's resolved.
-  if (needsSetup) {
-    return <Navigate to="/app/workspace-setup" replace />;
-  }
+if (workspaceLoading) {
+  return (
+    <div className="flex min-h-screen items-center justify-center">
+      Loading...
+    </div>
+  );
+}
 
-  return <MainLayout>{children}</MainLayout>;
+if (needsSetup) {
+  return <Navigate to="/app/workspace-setup" replace />;
+}
+
+return <MainLayout>{children}</MainLayout>;
 };
 
 // The workspace-setup screen itself needs a lighter guard: authenticated,
